@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% load widget_tweaks %}
+
+{% block conteudo %}
+
+<div class="container">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">{{ nome_pagina }}</h1>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <h4 class="mb-3 text-primary">
+                Lista de Associados e Visitantes
+            </h4>
+            <p class="mb-5 ml-l">
+                <small>
+                    digite o nome do visitante
+                </small>        
+            </p>   
+            
+            {% if form.errors %}
+                {% for field in form %}
+                    {% if field.errors %}
+                        {% for erro in field.errors %}
+                            <div class="alert alert-warning" role="alert"> 
+                                {{ erro }}
+                            </div>
+                        {% endfor %}        
+                    {% endif %}
+                {% endfor %}
+
+            {% endif %}
+            
+            <form method="get" action="{% url 'buscar_visitante' %}">
+                {{ form.as_p }}
+                <button type="submit">Buscar</button>
+            </form>     
+            <ul>
+                {% for visitante in visitantes %}
+                    <li>{{ visitante.nome_completo }} - {{ visitante.cpf }} - {{ visitante.hora_chegada }}</li>
+                {% empty %}
+                    <li>Nenhum visitante encontrado.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock conteudo %}
