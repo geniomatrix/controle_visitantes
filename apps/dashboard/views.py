@@ -31,7 +31,7 @@ def index(request):
     )
 
     context = {
-        "nome_pagina": "Início da dashboard - Clube CCS",    
+        "nome_pagina": "Clube CCS",    
         "todos_visitantes": todos_visitantes,
         "visitantes_aguardando": visitantes_aguardando.count(),
         "visitantes_em_visita": visitantes_em_visita.count(),

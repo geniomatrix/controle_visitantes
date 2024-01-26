@@ -12,11 +12,11 @@
     <div class="card shadow mb-4">
         <div class="card-body">
             <h4 class="mb-3 text-primary">
-                Lista de Associados e Visitantes
+                Lista de Sócios do Clube
             </h4>
             <p class="mb-5 ml-l">
                 <small>
-                    digite o nome do visitante
+                    digite o nome do sócio
                 </small>        
             </p>   
             
@@ -41,7 +41,7 @@
                 {% for visitante in visitantes %}
                     <li>{{ visitante.nome_completo }} - {{ visitante.cpf }} - {{ visitante.hora_chegada }}</li>
                 {% empty %}
-                    <li>Nenhum visitante encontrado.</li>
+                    <li>Nenhum sócio encontrado.</li>
                 {% endfor %}
             </ul>
         </div>

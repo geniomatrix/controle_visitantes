@@ -4,20 +4,40 @@
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">{{nome_pagina}}</h1>
 
-        <a href="{% url 'registrar_visitante' %}" class="btn btn-primary btn-icon-split btn-sm">
-            <span class="text">Registrar visitante</span>
+        <a href="{% url 'cadastrar_socio' %}" class="btn btn-primary btn-icon-split btn-sm">
+            <span class="text">Registrar sócio</span>
 
             <span class="icon text-white-50">
                 <i class="fas fa-user-plus"></i>
             </span>
         </a>
-        <a href="{% url 'buscar_visitante' %}" class="btn btn-primary btn-icon-split btn-sm">
-            <span class="text">Buscar Visitante</span>
+        <a href="{% url 'lista_socios' %}" class="btn btn-primary btn-icon-split btn-sm">
+            <span class="text">Sócio x Dependentes</span>
 
-            <span class="icon text-info">
-                <i class="fas fa fa-eye"></i>
+            <span class="icon text-white-50">
+                <i class="fas fa-user-plus"></i>
+            </span>
+        </a> 
+        
+        <a href="{% url 'buscar_socio' %}" class="btn btn-primary btn-icon-split btn-sm">
+            <span class="text">Acesso ao Clube</span>
+
+            <span class="icon text-white-50">
+                <i class="fas fa-user-plus"></i>
             </span>
         </a>
+        
+        <!--
+        <a href="{% url 'registrar_visitante' %}" class="btn btn-primary btn-icon-split btn-sm">
+            <span class="text">Visitantes ao Clube</span>
+
+            <span class="icon text-white-50">
+                <i class="fas fa-user-plus"></i>
+            </span>
+        </a>
+        -->
+
+
     </div>
 
     {% if messages %}
@@ -33,7 +53,7 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Visitantes aguardando autorização</div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Sócios aguardando autorização</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ visitantes_aguardando }}</div>
                         </div>
                         
@@ -50,7 +70,7 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitantes no clube</div>
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Sócio no clube</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ visitantes_em_visita }}</div>
                         </div>
                         
@@ -67,7 +87,7 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Visitas finalizadas</div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Sócios finalizadas</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ visitantes_finalizado }}</div>
                         </div>
                         <div class="col-auto">
@@ -83,7 +103,7 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Visitantes registrados no mês atual</div>
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Sócios visitantes no mês atual</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ visitantes_mes }}</div>
                         </div>
                         <div class="col-auto">
@@ -97,7 +117,7 @@
     
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
-            <h6 class="m-0 font-weight-bold text-primary">Visitantes recentes</h6>
+            <h6 class="m-0 font-weight-bold text-primary">Visitas de Sócios recentes</h6>
         </div>
 
         <div class="card-body">

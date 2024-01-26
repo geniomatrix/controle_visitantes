@@ -3,8 +3,6 @@ import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
@@ -39,7 +37,9 @@ INSTALLED_APPS += [
     'usuarios',
     'porteiros',
     'visitantes',
-    'dashboard',
+    'socio',
+    'dashboard'
+
  
 ]
 
@@ -119,6 +119,7 @@ USE_L10N = True
 
 USE_TZ = True
 
+DATE_FORMAT = 'd/m/Y'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
@@ -126,9 +127,17 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 
+#MEDIA_URL ='/images/'
+#MEDIA_ROOT = os.path.join(BASE_DIR, 'images')
+
+
+
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static")
+
 ]
 
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "index"
+
+

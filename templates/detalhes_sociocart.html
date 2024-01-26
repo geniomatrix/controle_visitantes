@@ -1,0 +1,19 @@
+
+{% extends "base.html" %}
+{% block conteudo %}
+{% if socio.foto %}
+  <img src="{{ socio.foto.url }}" alt="{{ socio.nome }} - Foto">
+{% else %}
+  <p>Não há foto para este sócio.</p>
+{% endif %}
+<div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
+  <h2 class="m-0 font-weight-bold text-primary">Detalhes do Sócio Titular: {{ socio.nome }}</h2>
+</div>
+<p>Email: {{ socio.email }}</p>
+<p>Data de Nascimento: {{ socio.data_nascimento }}</p>
+<p>Telefone: {{ socio.telefone }}</p>
+<p>Tipo de Sócio: {{ socio.tpsocio }}</p>
+<h3 class="m-0 font-weight-bold text-warning">Validade do exame médico: {{socio.dtexame_fin }}</h3>
+
+
+{% endblock conteudo%}

@@ -11,6 +11,7 @@ from visitantes.forms import (
 
 from django.utils import timezone
 import qrcode
+from datetime import timedelta
 
 def identificacao(request):
     # Lógica para criar um QR code
@@ -38,7 +39,7 @@ def buscar_visitante(request):
     form = BuscaVisitanteForm()
 
     context = {
-        'visitantes': visitantes,
+        'Sócios': visitantes,
         'form': form,
     }
 
@@ -53,12 +54,17 @@ def registrar_visitante(request):
 
     if request.method == "POST":
         form = VisitanteForm(request.POST)
-        
+       
         if form.is_valid():
             visitante = form.save(commit=False)
- 
-
+            
+            # Calcula a data_final adicionando 2 anos
+            
+            dois_anos = timedelta(days=365 * 2)
+            visitante.validade = timezone.now().date() + dois_anos
             visitante.registrado_por = request.user.porteiro
+  
+ 
             visitante.save()
             messages.success(
                 request,
@@ -107,7 +113,7 @@ def informacoes_visitante(request, id):
         
 
     context = {
-        "nome_pagina": "Informações de visitante",
+        "nome_pagina": "Informações do sócio",
         "visitante": visitante,
         "form": form
     }

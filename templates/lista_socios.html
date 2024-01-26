@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
+  <h2 class="m-0 font-weight-bold text-info">Sócios Cadastrados</h2>
+</div>
+<ul>
+  {% for socio in socio %}
+    <li>
+      <a href="{% url 'detalhes_socio' socio.id %}">{{ socio.nome }} - {{socio.email}} - {{socio.tpsocio}}
+  
+      </a>
+    </li>
+  {% endfor %}
+</ul>
+
+{% endblock conteudo%}

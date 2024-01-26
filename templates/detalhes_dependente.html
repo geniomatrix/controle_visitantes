@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block conteudo %}
+{% if dependente.foto %}
+  <img src="{{ dependente.foto.url }}" alt="{{ dependente.nome }} - Foto">
+{% else %}
+  <p>Não há foto para este sócio.</p>
+{% endif %}
+<div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
+  <h2 class="m-0 font-weight-bold text-primary">Nome Dependente : {{ dependente.nome }}</h2>
+</div>
+<h3 class="m-0 font-weight-bold text-info" >Registro: {{ dependente.nrcart }}</h3>
+<p>Data de Nascimento: {{ dependente.data_nascimento }}</p>
+
+<p>Titular: {{ socio.nome }}</p>
+
+
+
+<h3 class="m-0 font-weight-bold text-warning">Validade do exame médico: {{dependente.dtexame_fin }}</h3>
+
+{% endblock conteudo%}

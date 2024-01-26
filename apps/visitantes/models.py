@@ -1,12 +1,15 @@
 from django.db import models
 
 class Visitante(models.Model):
-
+ 
     STATUS_VISITANTE = [
         ("AGUARDANDO", "Aguardando autorização"),
         ("EM VISITANTE", "Em visita"),
         ("FINALIZADO", "Visita finalizada")
     ]
+
+  
+
 
     status = models.CharField(
         verbose_name="Status",
@@ -33,6 +36,7 @@ class Visitante(models.Model):
 
     numero_casa = models.PositiveBigIntegerField(
         verbose_name="Número do Quiosque a ser Visitada",
+     
 
     )
 
@@ -64,7 +68,7 @@ class Visitante(models.Model):
     )
 
     morador_responsavel = models.CharField(
-        verbose_name="Nome do associado responsável por autorizar a entrada do visitante ",
+        verbose_name="Nome do responsável por autorizar a entrada do visitante ",
         max_length=194,
         blank=True
     )
@@ -74,6 +78,10 @@ class Visitante(models.Model):
         verbose_name="Porteiro responsavel pelo registro",
         on_delete=models.PROTECT
     )
+
+   
+
+
 
     def get_horario_saida(self):
         if self.horario_saida:
@@ -108,6 +116,9 @@ class Visitante(models.Model):
             cpf_formatado = f"{cpf_parte_um}.{cpf_parte_dois}.{cpf_parte_tres}.{cpf_parte_quatro}"
 
             return cpf_formatado 
+
+    
+
     class Meta:
         verbose_name = "Visitante"
         verbose_name_plural = "Visitantes"
@@ -115,3 +126,4 @@ class Visitante(models.Model):
 
     def __str__(self):
         return self.nome_completo
+

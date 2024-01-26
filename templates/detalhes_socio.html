@@ -1,0 +1,39 @@
+
+{% extends "base.html" %}
+{% block conteudo %}
+{% if socio.foto %}
+  <img src="{{ socio.foto.url }}" alt="{{ socio.nome }} - Foto">
+{% else %}
+  <p>Não há foto para este sócio.</p>
+{% endif %}
+<div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
+  <h2 class="m-0 font-weight-bold text-primary">Detalhes do Sócio Titular: {{ socio.nome }}</h2>
+</div>
+<p>Email: {{ socio.email }}</p>
+<p>Data de Nascimento: {{ socio.data_nascimento }}</p>
+<p>Telefone: {{ socio.telefone }}</p>
+<p>Tipo de Sócio: {{ socio.tpsocio }}</p>
+<h3 class="m-0 font-weight-bold text-warning">Validade do exame médico: {{socio.dtexame_fin }}</h3>
+
+
+<div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
+  <h2 class="m-0 font-weight-bold text-primary">Dependentes</h2>
+</div>
+<ul>
+  {% for dependente in socio.dependentes.all %}
+    <li>{{ dependente.nome }} - {{ dependente.data_nascimento }} - {{ dependente.filiacao }} - {{ dependente.validade }}
+ 
+    </li>
+    <h3 class="m-0 font-weight-bold text-warning">Validade do exame médico: {{dependente.dtexame_fin }}</h3>
+  {% endfor %}
+</ul>
+
+<div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
+  <h3 class="m-0 font-weight-bold text-primary">Adicionar dependente:</h3>
+</div>
+<form method="post" action="">
+  {% csrf_token %}
+  {{ dependente_form.as_p }}
+  <button type="submit">Adicionar Dependente</button>
+</form>
+{% endblock conteudo%}
