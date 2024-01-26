@@ -1,5 +1,3 @@
-{% extends "base.html" %}
-{% block conteudo %}
 {% if dependente.foto %}
   <img src="{{ dependente.foto.url }}" alt="{{ dependente.nome }} - Foto">
 {% else %}
@@ -17,4 +15,3 @@
 
 <h3 class="m-0 font-weight-bold text-warning">Validade do exame médico: {{dependente.dtexame_fin }}</h3>
 
-{% endblock conteudo%}

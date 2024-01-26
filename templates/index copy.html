@@ -24,7 +24,7 @@
                 <i class="fas fa-user-plus"></i>
             </span>
         </a> 
-        <!--
+        
         <a href="{% url 'buscar_socio' %}" class="btn btn-primary btn-icon-split btn-sm">
             <span class="text">Acesso ao Clube</span>
 
@@ -32,8 +32,8 @@
                 <i class="fas fa-user-plus"></i>
             </span>
         </a>
-        -->
         
+  
         <a href="{% url 'registrar_visitante' %}" class="btn btn-primary btn-icon-split btn-sm">
             <span class="text">Visitantes ao Clube</span>
 
@@ -60,7 +60,7 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Visitantes aguardando autorização</div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Sócios aguardando autorização</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ visitantes_aguardando }}</div>
                         </div>
                         
@@ -77,7 +77,7 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitantes no clube</div>
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Sócio no clube</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ visitantes_em_visita }}</div>
                         </div>
                         
@@ -94,7 +94,7 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Visitantes finalizadas</div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Sócios finalizadas</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ visitantes_finalizado }}</div>
                         </div>
                         <div class="col-auto">
@@ -110,7 +110,7 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Visitantes no mês atual</div>
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Sócios visitantes no mês atual</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ visitantes_mes }}</div>
                         </div>
                         <div class="col-auto">

@@ -70,7 +70,7 @@ def buscar_socio(request):
     else:
         form = BuscaSocioForm()
 
-    return render(request, 'buscar_socio.html', {'form': form})
+    return render(request, 'buscar_socio_acesso.html', {'form': form})
 
 def search_socio(request):
     form = SocioSearchForm(request.GET)
