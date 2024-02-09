@@ -1,7 +1,84 @@
-<!-- templates/socios/editar_socio.html -->
-<h2>Editar Sócio</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Salvar alterações</button>
-</form>
+{% extends "base.html" %}
+
+{% load widget_tweaks %}
+
+{% block conteudo %}
+
+<div class="container">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">{{ nome_pagina }}</h1>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <h4 class="mb-3 text-primary">
+                Formulário para atualizar Sócios
+            </h4>
+            <p class="mb-5 ml-l">
+                <small>
+                    O asterisco (*) indica que o campo é obrigatório
+                </small>        
+            </p>   
+            
+            {% if form.errors %}
+                {% for field in form %}
+                    {% if field.errors %}
+                        {% for erro in field.errors %}
+                            <div class="alert alert-warning" role="alert"> 
+                                {{ erro }}
+                            </div>
+                        {% endfor %}        
+                    {% endif %}
+                {% endfor %}
+
+            {% endif %}
+            
+            <form method="post" >
+                <div class="form-row">
+                    {% csrf_token %}
+
+                    {% for field in form %}
+                        <div class="form-group col-md-12">
+                            <label>{{ field.label }} {% if field.field.required %} * {% endif %}</label>
+                            {% render_field field placeholder=field.label class="form-control" %}
+                            
+                        </div>     
+                    {% endfor %}
+                </div>
+                <div class="text-right">
+                    <a href="{% url 'index' %}" class="btn btn-secondary text-white" type="button">
+                        <span class="text">Cancelar</span>
+                    </a>
+                    <button class="btn btn-primary" type="button" id="buscar_cep">Buscar CEP</button>
+                    <button class="btn btn-primary" type="submit">
+                        <span class="text">Alterar Sócio</span>                         
+                    </button>        
+                </div>    
+            </form>     
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script>
+            $(document).ready(function() {
+                $('#buscar_cep').click(function() {
+                    var cep = $('#id_cep').val().replace(/\D/g, '');
+                    if (cep.length == 8) {
+                        $.ajax({
+                            url: `https://viacep.com.br/ws/${cep}/json/`,
+                            dataType: 'json',
+                            success: function(response) {
+                                $('#id_logradouro').val(response.logradouro);
+                                $('#id_bairro').val(response.bairro);
+                                $('#id_cidade').val(response.localidade);
+                                $('#id_estado').val(response.uf);
+                            }
+                        });
+                    } else {
+                        alert('Por favor, digite um CEP válido.');
+                    }
+                });
+            });
+            </script> 
+
+        </div>
+    </div>
+</div>
+{% endblock conteudo %}

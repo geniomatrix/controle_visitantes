@@ -7,17 +7,22 @@ class SocioForm(forms.ModelForm):
     
     class Meta:
         model = Socio
-        fields = ['nome', 'email', 'data_nascimento', 'telefone', 'tpsocio', 'dtexame_ini', 'dtexame_fin', 'foto']
-        
-
+        fields = ['nome', 'email','cpf', 'data_nascimento', 'telefone', 'tpsocio', 'registro','cep','logradouro','cidade','estado' ,'dtexame_ini', 'dtexame_fin', 'foto']
+        OPCOES = [('II', 'Servidor Publico'), ('VI', 'Particular')]
+        tpsocio = forms.ChoiceField(choices=OPCOES)
+        registro = forms.CharField(required=False)
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['dtexame_fin'].widget.attrs['disabled'] = True    
+        
+        self.fields['dtexame_fin'].widget.attrs['disabled'] = True
+        #self.fields['registro'].widget.attrs['disabled'] = True
+ 
 
 class DependenteForm(forms.ModelForm):
     class Meta:
         model = Dependentes
-        fields = ['nome', 'data_nascimento','filiacao','validade','dtexame_ini','dtexame_fin','foto']
+        fields = ['nome','cpf', 'data_nascimento','filiacao','validade','dtexame_ini','dtexame_fin','foto']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -29,4 +34,5 @@ class BuscaSocioForm(forms.Form):
     nrcart = forms.CharField(max_length=20, required=False, label='Número da Carterinha')    
 
 class SocioSearchForm(forms.Form):
-    search_query = forms.CharField(max_length=20, required=False, label='Número da Carterinha')    
+    #search_query = forms.CharField(max_length=20, required=False, label='Número da Carterinha')    
+    search_term = forms.CharField(max_length=100, required=False, label='Buscar sócio')

@@ -29,8 +29,7 @@ urlpatterns = [
     path("visitantes/<int:id>/finalizar-visita/", finalizar_visita, name="finalizar_visita"),
     path("buscar/", buscar_visitante, name="buscar_visitante"),
     path("identificacao/", identificacao, name="identificacao"),
-  
-   
+    
     
     
 ]

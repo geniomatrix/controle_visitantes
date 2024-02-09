@@ -4,31 +4,57 @@ from .models import Socio, Dependentes
 from .forms import SocioForm, DependenteForm,BuscaSocioForm,SocioSearchForm
 from datetime import timedelta
 from django.utils import timezone
+from .utils import preencher_endereco_por_cep
+
 
 
 def lista_socios(request):
-    socio = Socio.objects.all()
-    return render(request, 'lista_socios.html', {'socio': socio})
+    #socio = Socio.objects.all() #Socio.objects.filter(ativo='Sim')
+    #return render(request, 'lista_socios.html', {'socio': socio})
+    form = SocioSearchForm(request.GET)
+    socios = Socio.objects.all()
+
+    if form.is_valid():
+        search_term = form.cleaned_data['search_term']
+        #socios = socios.filter(nome__icontains=search_term) | socios.filter(registro__icontains=search_term)
+        socios = socios.filter(nome__icontains=search_term)
+
+    context = {'socio': socios, 'form': form}
+    return render(request, 'lista_socios.html', context)
+
+def lista_socios_altera(request):
+    #socio = Socio.objects.all() #Socio.objects.filter(ativo='Sim')
+    #return render(request, 'lista_socios.html', {'socio': socio})
+    form = SocioSearchForm(request.GET)
+    socios = Socio.objects.all()
+
+    if form.is_valid():
+        search_term = form.cleaned_data['search_term']
+        #socios = socios.filter(nome__icontains=search_term) | socios.filter(registro__icontains=search_term)
+        socios = socios.filter(nome__icontains=search_term)
+
+    context = {'socio': socios, 'form': form}
+    return render(request, 'lista_socios_altera.html', context)
 
 def detalhes_socio(request, socio_id):
     socio = get_object_or_404(Socio, pk=socio_id)
  
     dependente_form = DependenteForm()
-    dois_meses = timedelta(days=60)
+    dois_meses = timedelta(days=60) #validade do exame medico
     if request.method == 'POST':
         dependente_form = DependenteForm(request.POST)
         if dependente_form.is_valid():
             dependente = dependente_form.save(commit=False)
             dependente.socio = socio
-            if dependente.filiacao == "ESPOSA(o)":
-                dois_anos = timedelta(days=365 * 10)
-                dependente.validade = timezone.now().date() + dois_anos
-            elif dependente.filiacao == "FILHO(a)":
-                dois_anos = timedelta(days=365 * 5)
-                dependente.validade = timezone.now().date() + dois_anos                    
-            else:
-                dois_anos = timedelta(days=365 * 3)
-                dependente.validade = timezone.now().date() + dois_anos                    
+            #valida conforme filiação
+            if dependente.filiacao == "FILHO(a)":
+                qtd_anos = timedelta(days=365 * 25)
+                #dependente.validade = timezone.now().date() + qtd_anos
+                dependente.validade = dependente.data_nascimento + qtd_anos
+            elif dependente.filiacao == "NETO(a)":
+                qtd_anos = timedelta(days=365 * 12)
+                #dependente.validade = timezone.now().date() + qtd_anos
+                dependente.validade = dependente.data_nascimento + qtd_anos
             dependente.dtexame_fin = timezone.now().date() + dois_meses
             existe_registros = Dependentes.objects.exists()
             if existe_registros:  
@@ -87,6 +113,13 @@ def cadastrar_socio(request):
     if request.method == 'POST':
         form = SocioForm(request.POST)
         if form.is_valid():
+            cep = form.cleaned_data['cep']
+            endereco = preencher_endereco_por_cep(cep)
+            if endereco:
+                form.instance.logradouro = endereco['logradouro']
+                form.instance.bairro = endereco['bairro']
+                form.instance.cidade = endereco['cidade']
+                form.instance.estado = endereco['estado']
             existe_registros = Socio.objects.exists()
             if existe_registros:  
                 ultimo_registro = Socio.objects.latest('id')
@@ -111,7 +144,7 @@ def editar_socio(request, pk):
         form = SocioForm(request.POST, instance=socio)
         if form.is_valid():
             form.save()
-            return redirect('lista_socios')
+            return redirect('lista_socios_altera')
     else:
         form = SocioForm(instance=socio)
     return render(request, 'editar_socio.html', {'form': form})

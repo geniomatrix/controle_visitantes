@@ -5,6 +5,8 @@ from . import views
 
 urlpatterns = [
     path('', views.lista_socios, name='lista_socios'),
+    path('lista', views.lista_socios_altera, name='lista_socios_altera'),
+    path('busca', views.buscar_socio, name='buscar_socio'),
     path('socios', views.buscar_socio, name='buscar_socio'),
     path('cart', views.search_socio, name='search_socio'),
     path('<int:socio_id>/', views.detalhes_socio, name='detalhes_socio'),

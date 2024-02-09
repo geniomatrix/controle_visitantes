@@ -40,7 +40,23 @@
                         <span>Início</span>
                     </a>
                 </li>
- 
+                <hr class="sidebar-divider">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'buscar_socio' %}">
+                        <i class="fa fa-user"></i>
+                        <span>Acesso dos Sócios</span>
+                    </a>
+                </li>
+                           
+                <hr class="sidebar-divider">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'registrar_visitante' %}">
+                        <i class="fa fa-plus"></i>
+                        <span>Controle de Visitantes</span>
+                    </a>
+                </li>
+            
+
                 <hr class="sidebar-divider">
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'admin:index' %}">

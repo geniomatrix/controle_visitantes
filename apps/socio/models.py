@@ -9,10 +9,24 @@ class Socio(models.Model):
 
     ]
 
+    OPC_ATIVAR = [
+        ("S", "Sim"),
+        ("N", "Nao")
+
+    ]
+
     nome = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     data_nascimento = models.DateField()
     telefone = models.CharField(max_length=20, null=True)
+
+    ativo = models.CharField(
+        verbose_name="Ativar Socio",
+        max_length=10,
+        choices=OPC_ATIVAR,
+        default="Sim"
+    )
+
     
     tpsocio = models.CharField(
         verbose_name="Tipo de Socio",
@@ -40,6 +54,16 @@ class Socio(models.Model):
 
     foto = models.ImageField(upload_to='static/images/', null=True, blank=True)
     nrcart = models.CharField(max_length=20, null=True)
+    registro = models.CharField(verbose_name="Numero da Matricula no caso de servidor publico",max_length=20, null=True,blank=True)
+    cpf = models.CharField(max_length=20, null=True, blank=True)
+    
+    #endereço
+    logradouro = models.CharField(verbose_name="AV/Rua",max_length=255, null=True,blank=True)
+    bairro = models.CharField(max_length=100, null=True, blank=True)
+    cidade = models.CharField(max_length=100, null=True, blank=True)
+    estado = models.CharField(max_length=2, null=True, blank=True)
+    cep = models.CharField(max_length=9, null=True, blank=True)
+
     class Meta:
             verbose_name = "Sócio"
             verbose_name_plural = "Sócios"
@@ -52,8 +76,17 @@ class Dependentes(models.Model):
     OPC_FILIACAO = [
         ("ESPOSA(o)", "Esposa(o)"),
         ("FILHO(a)", "Filho(a)"),
-        ("NETO(a)", "Neto(a)")
+        ("NETO(a)", "Neto(a)"),
+        ("BISNETO(a)", "Bisneto(a)"),
+        ("SOGRO(a)", "Sogro(a)"),
+        ("PAIS", "Pais"),
     ]
+
+    OPC_ATIVAR = [
+            ("S", "Sim"),
+            ("N", "Nao")
+
+        ]
 
     socio = models.ForeignKey(Socio, on_delete=models.CASCADE,related_name='dependentes')
     nome = models.CharField(max_length=100)
@@ -94,6 +127,14 @@ class Dependentes(models.Model):
 
     foto = models.ImageField(upload_to='static/images/', null=True, blank=True)
     nrcart = models.CharField(max_length=20, null=True)
+    
+    cpf = models.CharField(max_length=20, null=True, blank=True)
+    ativo = models.CharField(
+        verbose_name="Ativar Socio",
+        max_length=10,
+        choices=OPC_ATIVAR,
+        default="Sim"
+    )
 
     class Meta:
             verbose_name = "Dependente"

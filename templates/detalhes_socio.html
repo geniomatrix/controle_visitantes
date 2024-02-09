@@ -8,12 +8,21 @@
 {% endif %}
 <div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
   <h2 class="m-0 font-weight-bold text-primary">Detalhes do Sócio Titular: {{ socio.nome }}</h2>
+
+</div>
+<div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
+  <h3 class="m-0 font-weight-bold text-info" >Registro: {{ socio.nrcart }}</h3>
 </div>
 <p>Email: {{ socio.email }}</p>
 <p>Data de Nascimento: {{ socio.data_nascimento }}</p>
 <p>Telefone: {{ socio.telefone }}</p>
 <p>Tipo de Sócio: {{ socio.tpsocio }}</p>
 <h3 class="m-0 font-weight-bold text-warning">Validade do exame médico: {{socio.dtexame_fin }}</h3>
+{% if socio.ativo == "Sim" %}
+  <h3 class="m-0 font-weight-bold text-info" >Situação: Titulo Ativo</h3>
+{% else %}
+  <h3 class="m-0 font-weight-bold text-danger" >Situação: Titulo Encerrado</h3>
+{% endif %}
 
 
 <div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
@@ -24,6 +33,7 @@
     <li>{{ dependente.nome }} - {{ dependente.data_nascimento }} - {{ dependente.filiacao }} - {{ dependente.validade }}
  
     </li>
+    <h3 class="m-0 font-weight-bold text-info" >Registro: {{ dependente.nrcart }}</h3>
     <h3 class="m-0 font-weight-bold text-warning">Validade do exame médico: {{dependente.dtexame_fin }}</h3>
   {% endfor %}
 </ul>
