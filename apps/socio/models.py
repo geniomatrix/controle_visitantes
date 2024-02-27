@@ -135,6 +135,12 @@ class Dependentes(models.Model):
         choices=OPC_ATIVAR,
         default="Sim"
     )
+    tpsocio = models.CharField(
+        verbose_name="Tipo de Socio",
+        max_length=20,
+        null=True,
+        blank=True
+    )
 
     class Meta:
             verbose_name = "Dependente"

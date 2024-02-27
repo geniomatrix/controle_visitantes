@@ -22,7 +22,7 @@ class SocioForm(forms.ModelForm):
 class DependenteForm(forms.ModelForm):
     class Meta:
         model = Dependentes
-        fields = ['nome','cpf', 'data_nascimento','filiacao','validade','dtexame_ini','dtexame_fin','foto']
+        fields = ['nome','cpf', 'data_nascimento','filiacao','validade','dtexame_ini','dtexame_fin','foto','tpsocio']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -36,3 +36,7 @@ class BuscaSocioForm(forms.Form):
 class SocioSearchForm(forms.Form):
     #search_query = forms.CharField(max_length=20, required=False, label='Número da Carterinha')    
     search_term = forms.CharField(max_length=100, required=False, label='Buscar sócio')
+
+class DependenteSearchForm(forms.Form):
+    #search_query = forms.CharField(max_length=20, required=False, label='Número da Carterinha')    
+    search_term = forms.CharField(max_length=100, required=False, label='Buscar dependente')

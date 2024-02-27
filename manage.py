@@ -6,6 +6,8 @@ import sys
 from django.contrib import admin
 class CustomAdminSite(admin.AdminSite):
     site_header = 'Controle de Sócios do Clube'
+    site_title = 'Meu Site de Administração'
+    index_title = 'Dashboard'
 
 # Registrar a instância personalizada
 custom_admin_site = CustomAdminSite(name='custom_admin')

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
+  <h2 class="m-0 font-weight-bold text-info">Alterar Dependente</h2>
+</div>
+<ul>
+                    
+  <form method="GET" action="{% url 'lista_dependentes' %}" class="form-inline">
+    {% csrf_token %}
+    <div class="form-group mr-4">
+
+      {{ form.as_p  }}
+    </div>
+    <button type="submit" class="btn btn-primary">Buscar</button>
+  </form>
+
+  {% for dependente in dependentes  %}
+    <li>
+      <a href="{% url 'editar_dependente' dependente.id %}">{{ dependente.nome }} - {{dependente.tpsocio}} - {{dependente.filiacao}}
+  
+      </a>
+    </li>
+  {% endfor %}
+</ul>
+
+{% endblock conteudo%}
