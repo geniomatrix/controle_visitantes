@@ -58,7 +58,67 @@
                 </div>    
             </form>   
             <br>
-
+            <button id="capturar-foto">Capturar Foto</button>
+            <button id="reativar-camera">Reativar Câmera</button>
+            <br>
+            <video id="video" width="640" height="480" autoplay style="margin-top: 10px;"></video>
+            <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+        
+            <script>
+                $(document).ready(function () {
+                    var video = document.getElementById('video');
+                    var cameraActive = true;
+                    
+                    function startCamera() {
+                        navigator.mediaDevices.getUserMedia({ video: true })
+                        .then(function (stream) {
+                            video.srcObject = stream;
+                            video.play();
+                        })
+                        .catch(function (err) {
+                            console.log("Erro ao acessar a câmera: " + err);
+                        });
+                    }
+        
+                    $('#capturar-foto').click(function () {
+                        var canvas = document.getElementById('canvas');
+                        var context = canvas.getContext('2d');
+                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+                        // Parar a transmissão de vídeo
+                        var stream = video.srcObject;
+                        var tracks = stream.getTracks();
+                        tracks.forEach(function(track) {
+                            track.stop();
+                        });
+        
+                        // Exibir a última frame do vídeo
+                        video.pause();
+                        canvas.style.display = 'block';
+                        video.style.display = 'none';
+        
+                        // Converter a imagem do canvas para um arquivo e atribuir ao campo de foto
+                        canvas.toBlob(function(blob) {
+                            var file = new File([blob], 'captura.jpg', { type: 'image/jpeg' });
+                            var formData = new FormData();
+                            formData.append('foto', file, 'captura.jpg');
+                            $('#foto').val(file.name).hide(); // Definir o nome do arquivo no campo de foto do formulário e ocultá-lo
+                        });
+        
+                        $('#capturar-foto').hide();
+                    });
+        
+                    $('#reativar-camera').click(function () {
+                        startCamera();
+                        $('#camera-view').html('<video id="video" width="640" height="480" autoplay style="margin-top: 10px;"></video><canvas id="canvas" width="640" height="480" style="display:none;"></canvas>');
+                        $('#capturar-foto').show();
+                    });
+        
+                    // Iniciar a câmera
+                    startCamera();
+                });
+            </script>
+ 
             <script>
             $(document).ready(function() {
                 $('#buscar_cep').click(function() {

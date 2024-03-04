@@ -3,6 +3,8 @@ from django.contrib import admin
 from django.urls import include,path
 
 from django.contrib.auth import views as auth_views
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 from dashboard.views import index
@@ -29,8 +31,11 @@ urlpatterns = [
     path("visitantes/<int:id>/finalizar-visita/", finalizar_visita, name="finalizar_visita"),
     path("buscar/", buscar_visitante, name="buscar_visitante"),
     #path("listad/", lista_dependentes, name="lista_dependentes"),
-    path("identificacao/", identificacao, name="identificacao"),
+    #path("cart/", identificacao, name="carteirinha"),
     
     
     
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

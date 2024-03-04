@@ -16,7 +16,8 @@ class Socio(models.Model):
     ]
 
     nome = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
+    #email = models.EmailField(unique=True)
+    email = models.EmailField(unique=False,max_length=40, null=True,blank=True,)
     data_nascimento = models.DateField()
     telefone = models.CharField(max_length=20, null=True)
 
@@ -53,6 +54,7 @@ class Socio(models.Model):
     )
 
     foto = models.ImageField(upload_to='static/images/', null=True, blank=True)
+    #foto = models.ImageField(upload_to='images', null=True, blank=True)
     nrcart = models.CharField(max_length=20, null=True)
     registro = models.CharField(verbose_name="Numero da Matricula no caso de servidor publico",max_length=20, null=True,blank=True)
     cpf = models.CharField(max_length=20, null=True, blank=True)

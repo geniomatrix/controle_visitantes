@@ -1,0 +1,50 @@
+<!-- socios/templates/socios/capturar_socio.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capturar Sócio</title>
+</head>
+<body>
+    <h1>Capturar Sócio</h1>
+    <video id="video" width="640" height="480" autoplay></video>
+    <button id="capture-btn">Capturar Foto</button>
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+    <form id="socio-form" method="post">
+        {% csrf_token %}
+        <label for="nome">Nome:</label>
+        <input type="text" name="nome" id="nome"><br>
+        <input type="hidden" name="imagem" id="imagem">
+        <input type="submit" value="Salvar">
+    </form>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureButton = document.getElementById('capture-btn');
+        const socioForm = document.getElementById('socio-form');
+        const nomeInput = document.getElementById('nome');
+        const imagemInput = document.getElementById('imagem');
+
+        // Solicitar permissão para acessar a câmera
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                video.srcObject = stream;
+            })
+            .catch((err) => {
+                console.error('Erro ao acessar a câmera:', err);
+            });
+
+        // Capturar imagem da câmera
+        captureButton.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL('image/jpeg');
+            imagemInput.value = dataUrl;
+            socioForm.submit();
+        });
+    </script>
+</body>
+</html>

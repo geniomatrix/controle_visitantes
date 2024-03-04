@@ -5,7 +5,64 @@ from .forms import SocioForm, DependenteForm,BuscaSocioForm,SocioSearchForm,Depe
 from datetime import timedelta
 from django.utils import timezone
 from .utils import preencher_endereco_por_cep
+import qrcode
+from io import BytesIO
+from django.core.files import File
+import base64
+from django.http import HttpResponseRedirect,JsonResponse
+import cv2
+import numpy as np
 
+def gerar_qr_code(data):
+    qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=5, border=2)
+    qr.add_data(data)
+    #redimensiona o conteúdo do qrcode para caber o conteúdo
+    qr.make(fit=True)
+    
+    img = qr.make_image(fill_color="black", back_color="white")
+ 
+    buffer = BytesIO()
+    img.save(buffer)
+    return buffer.getvalue()
+
+def carteirinha(request, pk):
+    #socio = get_object_or_404(Socio, pk=socio_id)
+    socio = Socio.objects.get(pk=pk)
+    if socio.nome and socio.nrcart:
+        #qr_code_data = f"Nome: {socio.nome}, Número do Sócio: {socio.nrcart}"
+        qr_code_data = f"{socio.nrcart}"
+        qr_code_bytes = gerar_qr_code(qr_code_data)
+        qr_code_base64 = base64.b64encode(qr_code_bytes).decode('utf-8')
+        return render(request, 'carteirinha.html', {'socio': socio, 'qr_code_base64': qr_code_base64})
+    else:
+        # Se algum dos campos estiver vazio, retorne uma resposta de erro ou faça o tratamento adequado
+        return render(request, 'erro.html', {'mensagem': 'Os dados do sócio estão incompletos'})
+
+def cartdep(request, pk):
+    
+    dependentes = Dependentes.objects.get(pk=pk)
+    
+    if dependentes.nome and dependentes.nrcart:
+        socio_id = dependentes.socio.id
+        socio = Socio.objects.get(pk=socio_id)
+        qr_code_data = f"{dependentes.nrcart}"
+        qr_code_bytes = gerar_qr_code(qr_code_data)
+        qr_code_base64 = base64.b64encode(qr_code_bytes).decode('utf-8')
+        return render(request, 'carteirinhadep.html', {'dependentes': dependentes, 'qr_code_base64': qr_code_base64,'socio': socio})
+    else:
+        # Se algum dos campos estiver vazio, retorne uma resposta de erro ou faça o tratamento adequado
+        return render(request, 'erro.html', {'mensagem': 'Os dados do dependente estão incompletos'})
+
+def lista_socioscart(request):
+    socios = Socio.objects.all()
+    dependentes = Dependentes.objects.all()
+
+    query = request.GET.get('q')
+    if query:
+        socios = socios.filter(nome__icontains=query)
+        dependentes = dependentes.filter(nome__icontains=query)
+
+    return render(request, 'lista_socioscart.html', {'socios': socios, 'dependentes': dependentes})
 
 
 def lista_socios(request):
@@ -188,12 +245,14 @@ def cadastrar_socio(request):
                 proximo_registro = ultimo_registro.id + 1 
                 dois_meses = timedelta(days=60)
                 form.instance.dtexame_fin = timezone.now().date() + dois_meses
-                form.instance.nrcart = "S"+str(proximo_registro)+form.instance.tpsocio 
+                form.instance.nrcart = "S" + str(proximo_registro) + form.instance.tpsocio
+                #form.instance.foto = form.instance.foto.FILES['foto']
                 form.save()
             else:
                 dois_meses = timedelta(days=60)
                 form.instance.dtexame_fin = timezone.now().date() + dois_meses
-                form.instance.nrcart = "S"+str(1)+form.instance.tpsocio 
+                form.instance.nrcart = "S" + str(1) + form.instance.tpsocio
+                #form.instance.foto = form.instance.foto.FILES['foto']
                 form.save()
             return redirect('lista_socios')
     else:
@@ -207,6 +266,7 @@ def editar_socio(request, pk):
         dois_meses = timedelta(days=60) #validade do exame medico
         if form.is_valid():
             socio.dtexame_fin = timezone.now().date() + dois_meses
+            #socio.foto = request.FILES['foto']
             form.save()
             return redirect('lista_socios_altera')
     else:
@@ -239,3 +299,62 @@ def editar_dependente(request, pk):
     else:
         form = DependenteForm(instance=dependente)
     return render(request, 'editar_dependente.html', {'form': form})
+
+def editar_socio_foto(request, pk):
+    socio = get_object_or_404(Socio, pk=pk)
+
+    if request.method == 'POST':
+        socio.nome = request.POST['nome']
+        # Se uma nova foto foi tirada, atualiza a foto do sócio
+        if 'foto_base64' in request.POST:
+            socio.foto = foto_base64_to_image(request.POST['foto_base64'])
+        socio.save()
+        #return HttpResponseRedirect('sucesso')  # Redirecionar para uma página de sucesso
+
+    return render(request, 'editar_socio_foto.html', {'socio': socio})
+
+def foto_base64_to_image(foto_base64):
+    import base64
+    from django.core.files.base import ContentFile
+    import io
+    from PIL import Image
+
+    foto_decoded = base64.b64decode(foto_base64.split(",")[1])
+    image_content = ContentFile(foto_decoded)
+    return image_content
+    
+def capturar_foto(request):
+    try:
+        cap = cv2.VideoCapture(0)
+
+        if not cap.isOpened():
+            raise IOError("Não foi possível abrir a câmera.")
+
+        ret, frame = cap.read()
+        cap.release()
+
+        if not ret:
+            raise IOError("Erro ao capturar imagem da câmera.")
+
+        # Definindo o caminho onde a imagem será salva
+        caminho_imagem = 'static/images/captura.jpg'
+
+        # Salvando a imagem capturada
+        cv2.imwrite(caminho_imagem, frame)
+
+        # Retornando o caminho da imagem salva para o cliente
+        return JsonResponse({'url': caminho_imagem})
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+def upload_photo(request):
+    if request.method == 'POST' and request.FILES['foto']:
+        foto = request.FILES['foto']
+        # Aqui você pode salvar a imagem como desejar
+        # Exemplo de salvar no banco de dados:
+        novo_socio = Socio(foto=foto)
+        novo_socio.save()
+        return JsonResponse({'message': 'Foto recebida e salva com sucesso!'})
+    else:
+        return JsonResponse({'error': 'Nenhuma imagem recebida.'}, status=400)

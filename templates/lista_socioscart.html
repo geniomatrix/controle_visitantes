@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
+  <h2 class="m-0 font-weight-bold text-info">Sócios e Dependentes Cadastrados</h2>
+</div>
+<form method="GET">
+    <input type="text" name="q" placeholder="Buscar por nome">
+    <button type="submit">Buscar</button>
+</form>
+<table>
+ 
+    <tbody>
+        {% for socio in socios %}
+          <div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
+            <h2 class="m-0 font-weight-bold text-primary">Sócio</h2>
+          </div>
+  
+            <tr>
+                <li>
+                  <a href="{% url 'carteirinha' socio.id %}">{{ socio.nome }} - {{socio.email}} - {{socio.tpsocio}}
+              
+                  </a>
+                </li>
+            </tr>
+            <div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
+              <h2 class="m-0 font-weight-bold text-info">Dependentes</h2>
+            </div>
+            {% for dependentes in socio.dependentes.all %}
+                <tr>
+                 
+                  <li>
+                    <a href="{% url 'cartdep' dependentes.id %}">{{ dependentes.nome }} - {{dependentes.tpsocio}} 
+                    </a>  
+                  </li>
+                
+                </tr>
+            {% endfor %}
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock conteudo%}

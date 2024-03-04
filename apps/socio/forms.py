@@ -18,11 +18,10 @@ class SocioForm(forms.ModelForm):
         self.fields['dtexame_fin'].widget.attrs['disabled'] = True
         #self.fields['registro'].widget.attrs['disabled'] = True
  
-
 class DependenteForm(forms.ModelForm):
     class Meta:
         model = Dependentes
-        fields = ['nome','cpf', 'data_nascimento','filiacao','validade','dtexame_ini','dtexame_fin','foto','tpsocio']
+        fields = ['nome','cpf', 'data_nascimento','filiacao','validade','dtexame_ini','dtexame_fin','foto','tpsocio','foto']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
