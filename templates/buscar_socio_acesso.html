@@ -73,7 +73,17 @@
                                         <button type="submit">Buscar</button>
                     
                                     </form>
-                                
+                                    <script>
+                                        // Define o foco para o campo1 após a página ser carregada
+                                        document.addEventListener("DOMContentLoaded", function() {
+                                            document.getElementById("id_nrcart").focus();
+                                        });
+                                         // Limpa o valor do campo quando a página é carregada
+                                        window.onload = function() {
+                                            document.getElementById("id_nrcart").value = "";
+                                        };
+                                    </script>    
+                                                                
                             </div>
  
                         </div>
@@ -84,7 +94,6 @@
             
         </div>
     </div>
-    
     <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
     <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/sb-admin-2.min.js' %}"></script>

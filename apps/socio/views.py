@@ -191,11 +191,13 @@ def detalhes_dependente(request, dependente_id):
 
 def buscar_socio(request):
     socio_id = None
+    
     if request.method == 'POST':
         form = BuscaSocioForm(request.POST)
         if form.is_valid():
             #socio_id = form.cleaned_data['socio_id']
             nrcart = form.cleaned_data['nrcart']
+            
             try:
                 #socio = Socio.objects.get(pk=socio_id)
                 socio = Socio.objects.get(nrcart=nrcart)

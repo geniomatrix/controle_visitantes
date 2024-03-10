@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block conteudo %}
+{% block extrastyle %}
+    {{ block.super }}
+    <!-- Seus estilos personalizados aqui -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/admin_custom.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div id="content">
+        <!-- Seu conteúdo personalizado aqui -->
+        <h1>Minha tela de administração - Sistema de Controle de Sócios e Dependentes</h1>
+        <p>Bem-vindo à minha tela de administração!</p>
+    </div>
+{% endblock conteudo%}
