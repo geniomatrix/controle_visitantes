@@ -27,51 +27,59 @@
 
         .logo {
             position: absolute;
-            top: 5mm; /* Distância do topo */
-            left: 5mm; /* Distância da esquerda */
-            max-width: 20mm; /* Largura máxima do logo */
-            max-height: 10mm; /* Altura máxima do logo */
+            top: 2mm; /* Distância do topo */
+            left: 40mm; /* Distância da esquerda */
+            max-width: 45mm; /* Largura máxima do logo */
+            max-height: 35mm; /* Altura máxima do logo */
         }
 
         .foto {
             position: absolute;
             top: 2mm; /* Distância do topo */
-            right: 5mm; /* Distância da direita */
-            max-width: 20mm; /* Largura máxima da foto */
-            max-height: 25mm; /* Altura máxima da foto */
+            left: 5mm; /* Distância da esquerda */
+            max-width: 40mm; /* Largura máxima da foto */
+            max-height: 45mm; /* Altura máxima da foto */
         }
 
         .info {
             position: absolute;
-            top: 25mm; /* Distância do topo */
+            top: 33mm; /* Distância do topo */
             left: 25mm; /* Distância da esquerda */
-            font-size: 12px;
-        }
-
-        .qrcode {
-            position: absolute;
-            top: 50mm; /* Distância do topo */
-            left: 20mm; /* Distância da esquerda */
-            font-size: 12px;
+            font-size: 13px;
         }
 
         .info2 {
             position: absolute;
-            top: 25mm; /* Distância do topo */
-            left: 3mm; /* Distância da esquerda */
+            top: 33mm; /* Distância do topo */
+            left: 5mm; /* Distância da esquerda */
             font-size: 15px;
         }
 
-        .titulo {
+        .qrcode {
             position: absolute;
             top: 1mm; /* Distância do topo */
-            left: 15mm; /* Distância da esquerda */
-            font-size: 15px;
+            right: 2mm; /* Distância da direita */
+            font-size: 12px;
         }
+
+   
+        .titulo {
+            position: absolute;
+            top: 60mm; /* Distância do topo */
+            left: 15mm; /* Distância da esquerda */
+            font-size: 13px;
+        }
+
+        .titulo2 {
+            position: absolute;
+            top: 65mm; /* Distância do topo */
+            left: 15mm; /* Distância da esquerda */
+            font-size: 13px;
+        }        
 
         .subtitulo {
             position: absolute;
-            top: 8mm; /* Distância do topo */
+            top: 75mm; /* Distância do topo */
             left: 15mm; /* Distância da esquerda */
             font-size: 12px;
         }
@@ -87,27 +95,12 @@
 </head>
 <body>
     <div class="container">
-        <img class="logo" id="logo" src={% static "images/logoccspg.png"%} alt="Clube"> <br>
-        <h3 class="titulo" id="titulo">CCS SBC</h3><br>
-        <div class="subtitulo">
-            <p id="end">Riacho Grande-SBCampo-S.Paulo </p>
-            <p id="fone">Administração - Fone 99770-3338 </p>
-            <div class="linha-divisoria"></div>    
-         
-        </div>
-
         {% if socio.foto %}
-            <img class="foto" id="foto" style="right: 10mm width: 15mm; height: 25mm;" src="{{ socio.foto.url }}" alt="{{ socio.nome }} - Foto">
-            
+            <img class="foto" id="foto" style="right: 11mm width: 15mm; height: 25mm;" src="{{ socio.foto.url }}" alt="{{ socio.nome }} - Foto">
         {% else %}
             <!--<p>Não há foto para este sócio.</p>-->
         {% endif %}
-        
-        <div class="info">
-
-            <p id="nome">Nome: {{ socio.nome }}</p>
-            <p id="dtven">Vencimento: {{ socio.dtexame_fin }}</p>
-        </div>
+        <img class="logo" id="logo" src={% static "images/logoccspg.png"%} alt="Clube"> <br>
         <div class="qrcode">
             <!--<p id="nrcart">Número do Sócio: {{ socio.nrcart }}</p>-->
             <img id= "qrcode" src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Code">
@@ -115,13 +108,26 @@
             <!--<button type="button" onclick="previewPrint()">Visualizar Impressão</button>-->
         </div>
         <div class="info2">
-            <p><strong>TITULAR</strong></p>
-            <p>Categoria</p>
-            <p ><strong>{{ socio.tpsocio }}</strong></p>
+            <p><strong>TITULAR:</strong></p>
+
             
         </div>
-   
+        <h3 class="titulo" id="titulo">Centro Civico Social Esportivo dos Servidores</h3><br>
+        <h3 class="titulo2" id="titulo">Público Municipais De São Bernardo do Campo</h3><br>
+        <div class="subtitulo">
+            <p id="end">Rua Frei Angelico Manente nº 325 - Jardim Tupã </p>
+            <p id="end">Riacho Grande-SBC-SP </p>
+            <p id="fone">Telefone:(11) 99770-3338 (WhatsApp) </p>
+            <div class="linha-divisoria"></div>    
+         
+        </div>
 
+        
+        <div class="info">
+            <p><strong> {{ socio.nome|slice:"0:30" }}  -  {{ socio.tpsocio }}   </strong></p> 
+            <!--<p id="dtven">Vencimento: {{ socio.dtexame_fin }}</p>!-->
+        </div>
+ 
     </div>
  
 </body>

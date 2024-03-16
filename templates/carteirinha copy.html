@@ -27,59 +27,51 @@
 
         .logo {
             position: absolute;
-            top: 2mm; /* Distância do topo */
-            left: 40mm; /* Distância da esquerda */
-            max-width: 45mm; /* Largura máxima do logo */
-            max-height: 35mm; /* Altura máxima do logo */
+            top: 5mm; /* Distância do topo */
+            left: 5mm; /* Distância da esquerda */
+            max-width: 20mm; /* Largura máxima do logo */
+            max-height: 10mm; /* Altura máxima do logo */
         }
 
         .foto {
             position: absolute;
             top: 2mm; /* Distância do topo */
-            left: 5mm; /* Distância da esquerda */
-            max-width: 40mm; /* Largura máxima da foto */
-            max-height: 45mm; /* Altura máxima da foto */
+            right: 5mm; /* Distância da direita */
+            max-width: 20mm; /* Largura máxima da foto */
+            max-height: 25mm; /* Altura máxima da foto */
         }
 
         .info {
             position: absolute;
-            top: 33mm; /* Distância do topo */
-            left: 35mm; /* Distância da esquerda */
-            font-size: 13px;
-        }
-
-        .info2 {
-            position: absolute;
-            top: 33mm; /* Distância do topo */
-            left: 1mm; /* Distância da esquerda */
-            font-size: 14px;
+            top: 25mm; /* Distância do topo */
+            left: 25mm; /* Distância da esquerda */
+            font-size: 12px;
         }
 
         .qrcode {
             position: absolute;
-            top: 1mm; /* Distância do topo */
-            right: 2mm; /* Distância da direita */
+            top: 50mm; /* Distância do topo */
+            left: 20mm; /* Distância da esquerda */
             font-size: 12px;
         }
 
-   
-        .titulo {
+        .info2 {
             position: absolute;
-            top: 60mm; /* Distância do topo */
-            left: 15mm; /* Distância da esquerda */
-            font-size: 13px;
+            top: 25mm; /* Distância do topo */
+            left: 3mm; /* Distância da esquerda */
+            font-size: 15px;
         }
 
-        .titulo2 {
+        .titulo {
             position: absolute;
-            top: 65mm; /* Distância do topo */
+            top: 1mm; /* Distância do topo */
             left: 15mm; /* Distância da esquerda */
-            font-size: 13px;
-        }        
+            font-size: 15px;
+        }
 
         .subtitulo {
             position: absolute;
-            top: 75mm; /* Distância do topo */
+            top: 8mm; /* Distância do topo */
             left: 15mm; /* Distância da esquerda */
             font-size: 12px;
         }
@@ -96,19 +88,16 @@
 <body>
     <div class="container">
         <img class="logo" id="logo" src={% static "images/logoccspg.png"%} alt="Clube"> <br>
-        <h3 class="titulo" id="titulo">Centro Civico Social Esportivo dos Servidores</h3><br>
-        <h3 class="titulo2" id="titulo">Público Municipais De São Bernardo do Campo</h3><br>
+        <h3 class="titulo" id="titulo">CCS SBC</h3><br>
         <div class="subtitulo">
-            <p id="end">Rua Frei Angelico Manente nº 325 - Jardim Tupã </p>
-            <p id="end">Riacho Grande-SBC-SP </p>
-            <p id="fone">Telefone:(11) 99770-3338 (WhatsApp) </p>
+            <p id="end">Riacho Grande-SBCampo-S.Paulo </p>
+            <p id="fone">Administração - Fone 99770-3338 </p>
             <div class="linha-divisoria"></div>    
          
         </div>
- 
 
-        {% if dependentes.foto %}
-            <img class="foto" id="foto" style="right: 10mm width: 15mm; height: 25mm;" src="{{ dependentes.foto.url }}" alt="{{ dependentes.nome }} - Foto">
+        {% if socio.foto %}
+            <img class="foto" id="foto" style="right: 10mm width: 15mm; height: 25mm;" src="{{ socio.foto.url }}" alt="{{ socio.nome }} - Foto">
             
         {% else %}
             <!--<p>Não há foto para este sócio.</p>-->
@@ -116,22 +105,19 @@
         
         <div class="info">
 
-            <p >{{ dependentes.nome }} - {{ dependentes.tpsocio }}</p>
-
-            <!--<p >Vencimento: {{ dependentes.dtexame_fin }}</p>!-->
-            <p>{{ socio.nome }} </p>  
+            <p id="nome">Nome: {{ socio.nome }}</p>
+            <p id="dtven">Vencimento: {{ socio.dtexame_fin }}</p>
         </div>
         <div class="qrcode">
-            <!--<p id="nrcart">Número do Sócio: {{ dependentes.nrcart }}</p>-->
+            <!--<p id="nrcart">Número do Sócio: {{ socio.nrcart }}</p>-->
             <img id= "qrcode" src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Code">
             
             <!--<button type="button" onclick="previewPrint()">Visualizar Impressão</button>-->
         </div>
         <div class="info2">
-            <p><strong>DEPENDENTE:</strong></p>
-            <p><strong>TITULAR:</strong></p>    
-
-     
+            <p><strong>TITULAR</strong></p>
+            <p>Categoria</p>
+            <p ><strong>{{ socio.tpsocio }}</strong></p>
             
         </div>
    
