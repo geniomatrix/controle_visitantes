@@ -3,7 +3,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Socio, Dependentes
 from .forms import SocioForm, DependenteForm,BuscaSocioForm,SocioSearchForm,DependenteSearchForm
-from datetime import timedelta
+from datetime import timedelta,datetime
 from django.utils import timezone
 from .utils import preencher_endereco_por_cep
 import qrcode
@@ -200,7 +200,16 @@ def detalhes_socio(request, socio_id):
                 qtd_anos = timedelta(days=365 * 12)
                 #dependente.validade = timezone.now().date() + qtd_anos
                 dependente.validade = dependente.data_nascimento + qtd_anos
-            dependente.dtexame_fin = timezone.now().date() + dois_meses
+           # dependente.dtexame_fin = timezone.now().date() + dois_meses
+            if dependente.dtexame_ini:   
+                if dependente.dtexame_fin:
+                    diferenca_dias = dependente.dtexame_ini - dependente.dtexame_fin
+                    if diferenca_dias.days > 60:
+                        dependente.dtexame_fin = dependente.dtexame_ini + dois_meses
+                    else:
+                        dependente.dtexame_fin = dependente.dtexame_ini + dois_meses            
+                else:
+                    dependente.dtexame_fin = dependente.dtexame_ini + dois_meses            
             existe_registros = Dependentes.objects.exists()
             if existe_registros:  
                 ultimo_registro = Dependentes.objects.latest('id')
@@ -327,10 +336,15 @@ def editar_socio(request, pk):
     socio = get_object_or_404(Socio, pk=pk)
     if request.method == 'POST':
         form = SocioForm(request.POST, instance=socio)
-        dois_meses = timedelta(days=60) #validade do exame medico
+        dois_meses = timedelta(days=60)  #validade do exame medico
         if form.is_valid():
-            socio.dtexame_fin = timezone.now().date() + dois_meses
-            #socio.foto = request.FILES['foto']
+            if socio.dtexame_ini:
+                if socio.dtexame_fin:
+                    diferenca_dias = socio.dtexame_ini - socio.dtexame_fin
+                    if diferenca_dias.days > 60:
+                        socio.dtexame_fin = socio.dtexame_ini + dois_meses
+                else:
+                    socio.dtexame_fin = socio.dtexame_ini + dois_meses            
             form.save()
             return redirect('lista_socios_altera')
     else:
@@ -348,7 +362,9 @@ def editar_dependente(request, pk):
     if request.method == 'POST':
         form = DependenteForm(request.POST, instance=dependente)
         if form.is_valid():
+           
            #valida conforme filiação
+            
             if dependente.filiacao == "FILHO(a)":
                 qtd_anos = timedelta(days=365 * 26) - timedelta(days=1)
                 #dependente.validade = timezone.now().date() + qtd_anos
@@ -357,7 +373,16 @@ def editar_dependente(request, pk):
                 qtd_anos = timedelta(days=365 * 13) - - timedelta(days=1)
                 #dependente.validade = timezone.now().date() + qtd_anos
                 dependente.validade = dependente.data_nascimento + qtd_anos            
-            dependente.dtexame_fin = timezone.now().date() + dois_meses
+            #dependente.dtexame_fin = timezone.now().date() + dois_meses
+            if dependente.dtexame_ini:
+                if dependente.dtexame_fin:
+                    diferenca_dias = dependente.dtexame_ini - dependente.dtexame_fin
+                    if diferenca_dias.days > 60:
+                        dependente.dtexame_fin = dependente.dtexame_ini + dois_meses
+                    else:
+                        dependente.dtexame_fin = dependente.dtexame_ini + dois_meses            
+                else:
+                    dependente.dtexame_fin = dependente.dtexame_ini + dois_meses
             form.save()
             return redirect('lista_dependentes')  # Redirecionar para página de sucesso após edição
     else:

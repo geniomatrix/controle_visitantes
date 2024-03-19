@@ -50,7 +50,7 @@
 
         .info2 {
             position: absolute;
-            top: 33mm; /* Distância do topo */
+            top: 35mm; /* Distância do topo */
             left: 1mm; /* Distância da esquerda */
             font-size: 14px;
         }
@@ -97,9 +97,9 @@
     <div class="container">
         <img class="logo" id="logo" src={% static "images/logoccspg.png"%} alt="Clube"> <br>
         <h3 class="titulo" id="titulo">Centro Civico Social Esportivo dos Servidores</h3><br>
-        <h3 class="titulo2" id="titulo">Público Municipais De São Bernardo do Campo</h3><br>
+        <h3 class="titulo2" id="titulo">Públicos Municipais de São Bernardo do Campo</h3><br>
         <div class="subtitulo">
-            <p id="end">Rua Frei Angelico Manente nº 325 - Jardim Tupã </p>
+            <p id="end">Rua Frei Angélico Manente nº 325 - Jardim Tupã </p>
             <p id="end">Riacho Grande-SBC-SP </p>
             <p id="fone">Telefone:(11) 99770-3338 (WhatsApp) </p>
             <div class="linha-divisoria"></div>    
@@ -116,7 +116,7 @@
         
         <div class="info">
 
-            <p >{{ dependentes.nome }} - {{ dependentes.tpsocio }}</p>
+            <p >{{ dependentes.nome }} - {{ dependentes.tpsocio }} - {{ dependentes.filiacao }}  </p>
 
             <!--<p >Vencimento: {{ dependentes.dtexame_fin }}</p>!-->
             <p>{{ socio.nome }} </p>  
