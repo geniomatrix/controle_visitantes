@@ -4,12 +4,15 @@
   <p>Não há foto para este sócio.</p>
 {% endif %}
 <div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
-  <h2 class="m-0 font-weight-bold text-primary">Nome Dependente : {{ dependente.nome }}</h2>
+  <h2 class="inactive">Atenção Dependente Inativo</h2>
+  <h2 class="inactive">Nome Dependente : {{ dependente.nome }}</h2>
 </div>
 <h3 class="m-0 font-weight-bold text-info" >Registro: {{ dependente.nrcart }}</h3>
 <p>Data de Nascimento: {{ dependente.data_nascimento }}</p>
 
 <p>Titular: {{ socio.nome }}</p>
+
+<h3 class="inactive" >Dependente Inativo</h3>
 
 
 
@@ -36,4 +39,18 @@
         redirectToPreviousPage(); // Redireciona para a página anterior imediatamente
     });
 </script>
+<style>
+  /* CSS para cor vermelha */
+  body {
+      font-family: Arial, sans-serif;
+  }
+  h1 {
+      color: red; /* Cor vermelha para o título */
+  }
+  .inactive {
+      color: red; /* Cor vermelha para o texto */
+      font-weight: bold;
+  }
+</style>
+
 

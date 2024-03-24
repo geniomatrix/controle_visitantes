@@ -273,14 +273,23 @@ def buscar_socio(request):
                 #socio = Socio.objects.get(pk=socio_id)
                 socio = Socio.objects.get(nrcart=nrcart)
                 socio_id = socio.id
-                return render(request, 'detalhes_sociocart.html', {'socio': socio,'socio_id': socio_id})
+                #verifica se o sócio esta ativo
+                socio_ativo = verificar_socio_ativo(socio_id)
+                if socio_ativo:
+                    return render(request, 'detalhes_sociocart.html', {'socio': socio, 'socio_id': socio_id})
+                else:
+                    return render(request, 'detalhes_sociocart_inativo.html', {'socio': socio, 'socio_id': socio_id})    
                 #return redirect('detalhes_socio', socio_id=socio_id)
             except Socio.DoesNotExist:
                 try:
                     dependente = Dependentes.objects.get(nrcart=nrcart)
                     socio = dependente.socio
-                    socio_id = socio.id
-                    return render(request, 'detalhes_dependente.html', {'dependente': dependente,'socio': socio, 'socio_id': socio_id})
+                    dependente_id = dependente.id
+                    dependente_ativo = verificar_dependente_ativo(dependente_id)
+                    if dependente_ativo:
+                        return render(request, 'detalhes_dependente.html', {'dependente': dependente, 'socio': socio, 'socio_id': socio_id})
+                    else:
+                        return render(request, 'detalhes_dependente_inativo.html', {'dependente': dependente, 'socio': socio, 'socio_id': socio_id})    
 
                 except Dependentes.DoesNotExist:
                     mensagem = 'Sócio e dependente não encontrado.'.format(nrcart)
@@ -447,3 +456,17 @@ def upload_photo(request):
         return JsonResponse({'message': 'Foto recebida e salva com sucesso!'})
     else:
         return JsonResponse({'error': 'Nenhuma imagem recebida.'}, status=400)
+
+def verificar_socio_ativo(socio_id):
+    try:
+        socio = Socio.objects.get(id=socio_id)
+        return socio.ativo == 'S'
+    except Socio.DoesNotExist:
+        return False
+
+def verificar_dependente_ativo(socio_id):
+    try:
+        dependentes = Dependentes.objects.get(id=socio_id)
+        return dependentes.ativo == 'S'
+    except Dependentes.DoesNotExist:
+        return False
