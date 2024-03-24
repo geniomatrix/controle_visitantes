@@ -18,7 +18,7 @@
 <p>Telefone: {{ socio.telefone }}</p>
 <p>Tipo de Sócio: {{ socio.tpsocio }}</p>
 <h3 class="m-0 font-weight-bold text-warning">Validade do exame médico: {{socio.dtexame_fin }}</h3>
-{% if socio.ativo == "Sim" %}
+{% if socio.ativo == "S" %}
   <h3 class="m-0 font-weight-bold text-info" >Situação: Titulo Ativo</h3>
 {% else %}
   <h3 class="m-0 font-weight-bold text-danger" >Situação: Titulo Encerrado</h3>

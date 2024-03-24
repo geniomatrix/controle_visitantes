@@ -13,6 +13,7 @@ import base64
 from django.http import HttpResponseRedirect,JsonResponse
 import cv2
 import numpy as np
+from dateutil.relativedelta import relativedelta
 
 
 
@@ -193,13 +194,14 @@ def detalhes_socio(request, socio_id):
             dependente.socio = socio
             #valida conforme filiação
             if dependente.filiacao == "FILHO(a)":
-                qtd_anos = timedelta(days=365 * 25)
-                #dependente.validade = timezone.now().date() + qtd_anos
-                dependente.validade = dependente.data_nascimento + qtd_anos
+                #qtd_anos = timedelta(days=(365 * 25)- 1)
+                #print(dependente.data_nascimento)
+                #print(qtd_anos)
+                dependente.validade = dependente.data_nascimento + relativedelta(years=25) - timedelta(days=1)
             elif dependente.filiacao == "NETO(a)":
-                qtd_anos = timedelta(days=365 * 12)
+                #qtd_anos = timedelta(days=365 * 12)- timedelta(days=1)
                 #dependente.validade = timezone.now().date() + qtd_anos
-                dependente.validade = dependente.data_nascimento + qtd_anos
+                dependente.validade = dependente.data_nascimento + relativedelta(years=12) - timedelta(days=1)
            # dependente.dtexame_fin = timezone.now().date() + dois_meses
             if dependente.dtexame_ini:   
                 if dependente.dtexame_fin:

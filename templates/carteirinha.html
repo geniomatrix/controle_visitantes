@@ -28,9 +28,9 @@
         .logo {
             position: absolute;
             top: 2mm; /* Distância do topo */
-            left: 40mm; /* Distância da esquerda */
-            max-width: 45mm; /* Largura máxima do logo */
-            max-height: 35mm; /* Altura máxima do logo */
+            left: 35mm; /* Distância da esquerda */
+            max-width: 35mm; /* Largura máxima do logo */
+            max-height: 25mm; /* Altura máxima do logo */
         }
 
         .foto {
@@ -100,7 +100,7 @@
         {% else %}
             <!--<p>Não há foto para este sócio.</p>-->
         {% endif %}
-        <img class="logo" id="logo" src={% static "images/logoccspg.png"%} alt="Clube"> <br>
+        <img class="logo" id="logo" src={% static "images/logoccs.png"%} alt="Clube"> <br>
         <div class="qrcode">
             <!--<p id="nrcart">Número do Sócio: {{ socio.nrcart }}</p>-->
             <img id= "qrcode" src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Code">
