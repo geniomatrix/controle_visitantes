@@ -118,8 +118,9 @@
         <div class="info">
 
             <p >{{ dependentes.nome }} - {{ dependentes.tpsocio }} - {{ dependentes.filiacao }}  </p>
-
-            <!--<p >Vencimento: {{ dependentes.dtexame_fin }}</p>!-->
+            {% if dependentes.filiacao == "FILHO(a)" or dependentes.filiacao == "NETO(a)" %}
+                <p >Validade: {{ dependentes.validade }}</p>
+            {% endif %}    
             <p>{{ socio.nome }} </p>  
         </div>
         <div class="qrcode">
@@ -130,6 +131,9 @@
         </div>
         <div class="info2">
             <p><strong>DEPENDENTE:</strong></p>
+            {% if dependentes.filiacao == "FILHO(a)" or dependentes.filiacao == "NETO(a)" %}
+            <br>
+            {% endif %}    
             <p><strong>TITULAR:</strong></p>    
 
      
