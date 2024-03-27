@@ -197,11 +197,11 @@ def detalhes_socio(request, socio_id):
                 #qtd_anos = timedelta(days=(365 * 25)- 1)
                 #print(dependente.data_nascimento)
                 #print(qtd_anos)
-                dependente.validade = dependente.data_nascimento + relativedelta(years=25) - timedelta(days=1)
+                dependente.validade = dependente.data_nascimento + relativedelta(years=26) - timedelta(days=1)
             elif dependente.filiacao == "NETO(a)":
                 #qtd_anos = timedelta(days=365 * 12)- timedelta(days=1)
                 #dependente.validade = timezone.now().date() + qtd_anos
-                dependente.validade = dependente.data_nascimento + relativedelta(years=12) - timedelta(days=1)
+                dependente.validade = dependente.data_nascimento + relativedelta(years=13) - timedelta(days=1)
            # dependente.dtexame_fin = timezone.now().date() + dois_meses
             if dependente.dtexame_ini:   
                 if dependente.dtexame_fin:
@@ -238,13 +238,13 @@ def detalhes_dependente(request, dependente_id):
             dependente.socio = socio
             #valida conforme filiação
             if dependente.filiacao == "FILHO(a)":
-                qtd_anos = timedelta(days=365 * 26) - timedelta(days=1)
+                #qtd_anos = timedelta(days=365 * 26) - timedelta(days=1)
                 #dependente.validade = timezone.now().date() + qtd_anos
-                dependente.validade = dependente.data_nascimento + qtd_anos
+                dependente.validade = dependente.data_nascimento + relativedelta(years=26) - timedelta(days=1)
             elif dependente.filiacao == "NETO(a)":
-                qtd_anos = timedelta(days=365 * 13) - timedelta(days=1)
+                #qtd_anos = timedelta(days=365 * 13) - timedelta(days=1)
                 #dependente.validade = timezone.now().date() + qtd_anos
-                dependente.validade = dependente.data_nascimento + qtd_anos
+                dependente.validade = dependente.data_nascimento + relativedelta(years=13) - timedelta(days=1)
             dependente.dtexame_fin = timezone.now().date() + dois_meses
             existe_registros = Dependentes.objects.exists()
             if existe_registros:  
@@ -277,7 +277,7 @@ def buscar_socio(request):
                 socio_id = socio.id
                 #verifica se o sócio esta ativo
                 socio_ativo = verificar_socio_ativo(socio_id)
-                if socio_ativo:
+                if socio_ativo != 'N':
                     return render(request, 'detalhes_sociocart.html', {'socio': socio, 'socio_id': socio_id})
                 else:
                     return render(request, 'detalhes_sociocart_inativo.html', {'socio': socio, 'socio_id': socio_id})    
@@ -288,7 +288,7 @@ def buscar_socio(request):
                     socio = dependente.socio
                     dependente_id = dependente.id
                     dependente_ativo = verificar_dependente_ativo(dependente_id)
-                    if dependente_ativo:
+                    if dependente_ativo != 'N':
                         return render(request, 'detalhes_dependente.html', {'dependente': dependente, 'socio': socio, 'socio_id': socio_id})
                     else:
                         return render(request, 'detalhes_dependente_inativo.html', {'dependente': dependente, 'socio': socio, 'socio_id': socio_id})    
@@ -377,13 +377,13 @@ def editar_dependente(request, pk):
            #valida conforme filiação
             
             if dependente.filiacao == "FILHO(a)":
-                qtd_anos = timedelta(days=365 * 26) - timedelta(days=1)
+                #qtd_anos = timedelta(days=365 * 26) - timedelta(days=1)
                 #dependente.validade = timezone.now().date() + qtd_anos
-                dependente.validade = dependente.data_nascimento + qtd_anos
+                dependente.validade = dependente.data_nascimento + relativedelta(years=26) - timedelta(days=1)
             elif dependente.filiacao == "NETO(a)":
-                qtd_anos = timedelta(days=365 * 13) - - timedelta(days=1)
+                #qtd_anos = timedelta(days=365 * 13) - - timedelta(days=1)
                 #dependente.validade = timezone.now().date() + qtd_anos
-                dependente.validade = dependente.data_nascimento + qtd_anos            
+                dependente.validade = dependente.data_nascimento + relativedelta(years=13) - timedelta(days=1)            
             #dependente.dtexame_fin = timezone.now().date() + dois_meses
             if dependente.dtexame_ini:
                 if dependente.dtexame_fin:
