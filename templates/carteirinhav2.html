@@ -28,38 +28,39 @@
         .logo {
             position: absolute;
             top: 2mm; /* Distância do topo */
-            left: 35mm; /* Distância da esquerda */
-            max-width: 35mm; /* Largura máxima do logo */
-            max-height: 25mm; /* Altura máxima do logo */
+            left: 2mm; /* Distância da esquerda */
+            max-width: 25mm; /* Largura máxima do logo */
+            max-height: 15mm; /* Altura máxima do logo */
         }
 
         .foto {
             position: absolute;
-            top: 2mm; /* Distância do topo */
-            left: 5mm; /* Distância da esquerda */
+            top: 1mm; /* Distância do topo */
+            right: 5mm; /* Distância da esquerda */
             max-width: 40mm; /* Largura máxima da foto */
             max-height: 45mm; /* Altura máxima da foto */
         }
 
         .info {
             position: absolute;
-            top: 33mm; /* Distância do topo */
-            left: 5mm; /* Distância da esquerda */
-            font-size: 13px;
+            top: 15mm; /* Distância do topo */
+            left: 1mm; /* Distância da esquerda */
+            font-size: 12px;
         }
 
         .info2 {
             position: absolute;
-            top: 33mm; /* Distância do topo */
-            left: 5mm; /* Distância da esquerda */
+            top: 30mm; /* Distância do topo */
+            left: 1mm; /* Distância da esquerda */
             font-size: 15px;
         }
 
         .qrcode {
             position: absolute;
-            top: 1mm; /* Distância do topo */
+            top: 33mm; /* Distância do topo */
             right: 2mm; /* Distância da direita */
             font-size: 12px;
+  
         }
 
    
@@ -96,7 +97,7 @@
 <body>
     <div class="container">
         {% if socio.foto %}
-            <img class="foto" id="foto" style="right: 11mm width: 15mm; height: 25mm;" src="{{ socio.foto.url }}" alt="{{ socio.nome }} - Foto">
+            <img class="foto" id="foto" style="right: 11mm width: 35mm; height: 25mm;" src="{{ socio.foto.url }}" alt="{{ socio.nome }} - Foto">
         {% else %}
             <!--<p>Não há foto para este sócio.</p>-->
         {% endif %}
@@ -107,9 +108,10 @@
             
             <!--<button type="button" onclick="previewPrint()">Visualizar Impressão</button>-->
         </div>
-        <div class="info2">
-            <!--<p><strong>TITULAR:</strong></p>-->
-
+        <div class="info">
+            <p><strong>Centro Civico Social Esportivo </strong></p> 
+            <p><strong>dos Servidores Públicos</strong></p>
+               
             
         </div>
         <h3 class="titulo" id="titulo">Centro Civico Social Esportivo dos Servidores</h3><br>
@@ -123,8 +125,9 @@
         </div>
 
         
-        <div class="info">
-            <p style="text-transform: uppercase;"><strong>TITULAR: {{ socio.nome|slice:"0:30" }}  -  {{ socio.tpsocio }}   </strong></p> 
+        <div class="info2">
+            <p style="text-transform: uppercase;"><strong> {{ socio.nome }}    </strong></p> 
+            <p><strong> Nº {{ socio.nrcart }}  - Categoria: {{ socio.tpsocio }}   </strong></p> 
             <!--<p id="dtven">Vencimento: {{ socio.dtexame_fin }}</p>!-->
         </div>
  

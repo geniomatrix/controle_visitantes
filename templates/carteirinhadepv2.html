@@ -33,6 +33,7 @@
             max-height: 25mm; /* Altura máxima do logo */
         }
 
+
         .foto {
             position: absolute;
             top: 2mm; /* Distância do topo */
@@ -44,15 +45,15 @@
         .info {
             position: absolute;
             top: 33mm; /* Distância do topo */
-            left: 5mm; /* Distância da esquerda */
+            left: 35mm; /* Distância da esquerda */
             font-size: 13px;
         }
 
         .info2 {
             position: absolute;
-            top: 33mm; /* Distância do topo */
-            left: 5mm; /* Distância da esquerda */
-            font-size: 15px;
+            top: 35mm; /* Distância do topo */
+            left: 1mm; /* Distância da esquerda */
+            font-size: 14px;
         }
 
         .qrcode {
@@ -95,23 +96,7 @@
 </head>
 <body>
     <div class="container">
-        {% if socio.foto %}
-            <img class="foto" id="foto" style="right: 11mm width: 15mm; height: 25mm;" src="{{ socio.foto.url }}" alt="{{ socio.nome }} - Foto">
-        {% else %}
-            <!--<p>Não há foto para este sócio.</p>-->
-        {% endif %}
         <img class="logo" id="logo" src={% static "images/logoccs.png"%} alt="Clube"> <br>
-        <div class="qrcode">
-            <!--<p id="nrcart">Número do Sócio: {{ socio.nrcart }}</p>-->
-            <img id= "qrcode" src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Code">
-            
-            <!--<button type="button" onclick="previewPrint()">Visualizar Impressão</button>-->
-        </div>
-        <div class="info2">
-            <!--<p><strong>TITULAR:</strong></p>-->
-
-            
-        </div>
         <h3 class="titulo" id="titulo">Centro Civico Social Esportivo dos Servidores</h3><br>
         <h3 class="titulo2" id="titulo">Públicos Municipais de São Bernardo do Campo</h3><br>
         <div class="subtitulo">
@@ -121,13 +106,41 @@
             <div class="linha-divisoria"></div>    
          
         </div>
+ 
 
+        {% if dependentes.foto %}
+            <img class="foto" id="foto" style="right: 10mm width: 15mm; height: 25mm;" src="{{ dependentes.foto.url }}" alt="{{ dependentes.nome }} - Foto">
+            
+        {% else %}
+            <!--<p>Não há foto para este sócio.</p>-->
+        {% endif %}
         
         <div class="info">
-            <p style="text-transform: uppercase;"><strong>TITULAR: {{ socio.nome|slice:"0:30" }}  -  {{ socio.tpsocio }}   </strong></p> 
-            <!--<p id="dtven">Vencimento: {{ socio.dtexame_fin }}</p>!-->
+
+            <p >{{ dependentes.nome }} - {{ dependentes.tpsocio }} - {{ dependentes.filiacao }}  </p>
+            {% if dependentes.filiacao == "FILHO(a)" or dependentes.filiacao == "NETO(a)" %}
+                <p >Validade: {{ dependentes.validade }}</p>
+            {% endif %}    
+            <p>{{ socio.nome }} </p>  
         </div>
- 
+        <div class="qrcode">
+            <!--<p id="nrcart">Número do Sócio: {{ dependentes.nrcart }}</p>-->
+            <img id= "qrcode" src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Code">
+            
+            <!--<button type="button" onclick="previewPrint()">Visualizar Impressão</button>-->
+        </div>
+        <div class="info2">
+            <p><strong>DEPENDENTE:</strong></p>
+            {% if dependentes.filiacao == "FILHO(a)" or dependentes.filiacao == "NETO(a)" %}
+            <br>
+            {% endif %}    
+            <p><strong>TITULAR:</strong></p>    
+
+     
+            
+        </div>
+   
+
     </div>
  
 </body>

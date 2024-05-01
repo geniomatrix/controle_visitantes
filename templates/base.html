@@ -41,6 +41,7 @@
                         <span>Início</span>
                     </a>
                 </li>
+                {% if user.is_superuser %}
                 <hr class="sidebar-divider">
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'lista_dependentes' %}">
@@ -56,6 +57,8 @@
                     </a>
                 </li>
                 <hr class="sidebar-divider">
+                {% endif %}
+
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'lista_socioscart' %}">
                         <i class="fa fa-print"></i>
@@ -70,8 +73,6 @@
                         <span>Controle de Visitantes</span>
                     </a>
                 </li>
-            
-
                 <hr class="sidebar-divider">
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'admin:index' %}">

@@ -17,10 +17,8 @@ from dateutil.relativedelta import relativedelta
 
 
 
-
-
 def gerar_qr_code(data):
-    qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=5, border=2)
+    qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=4, border=2)
     qr.add_data(data)
     #redimensiona o conteúdo do qrcode para caber o conteúdo
     qr.make(fit=True)
@@ -59,7 +57,9 @@ def cartdep(request, pk):
         # Se algum dos campos estiver vazio, retorne uma resposta de erro ou faça o tratamento adequado
         return render(request, 'erro.html', {'mensagem': 'Os dados do dependente estão incompletos'})
 
+
 def lista_socioscart(request):
+    
     socios = Socio.objects.all()
     dependentes = Dependentes.objects.all()
     query = request.GET.get('q')
@@ -89,6 +89,7 @@ def lista_socioscart(request):
 
 
 def lista_socios(request):
+    
     #socio = Socio.objects.all() #Socio.objects.filter(ativo='Sim')
     #return render(request, 'lista_socios.html', {'socio': socio})
     form = SocioSearchForm(request.GET)
@@ -112,6 +113,7 @@ def lista_socios(request):
     return render(request, 'lista_socios.html', context)
 
 def lista_socios_altera(request):
+    
     #socio = Socio.objects.all() #Socio.objects.filter(ativo='Sim')
     #return render(request, 'lista_socios.html', {'socio': socio})
     form = SocioSearchForm(request.GET)
@@ -136,7 +138,7 @@ def lista_socios_altera(request):
     return render(request, 'lista_socios_altera.html', context)
 
 def lista_dependentes(request):
-
+    
     form = DependenteSearchForm(request.GET)
     dependentes = Dependentes.objects.all()
 
@@ -159,7 +161,7 @@ def lista_dependentes(request):
     return render(request, 'lista_dependentes.html', context)
 
 def lista_dependentes_altera(request):
-
+    
     form = DependenteSearchForm(request.GET)
     dependentes = Dependentes.objects.all()
 
@@ -183,6 +185,7 @@ def lista_dependentes_altera(request):
     return render(request, 'lista_dependentes_altera.html', context)
 
 def detalhes_socio(request, socio_id):
+    
     socio = get_object_or_404(Socio, pk=socio_id)
  
     dependente_form = DependenteForm()
@@ -227,6 +230,7 @@ def detalhes_socio(request, socio_id):
     return render(request, 'detalhes_socio.html', {'socio': socio, 'dependente_form': dependente_form})
 
 def detalhes_dependente(request, dependente_id):
+    
     dependente = get_object_or_404(Dependente, pk=dependente_id)
  
     dependente_form = DependenteForm()
@@ -263,6 +267,7 @@ def detalhes_dependente(request, dependente_id):
 
 
 def buscar_socio(request):
+    
     socio_id = None
     
     if request.method == 'POST':
@@ -313,6 +318,7 @@ def search_socio(request):
     return render(request, 'search_results.html', {'form': form, 'results': results})  
  
 def cadastrar_socio(request):
+    
     if request.method == 'POST':
         form = SocioForm(request.POST)
         if form.is_valid():
@@ -344,6 +350,7 @@ def cadastrar_socio(request):
     return render(request, 'cadastrar_socio.html', {'form': form})
 
 def editar_socio(request, pk):
+    
     socio = get_object_or_404(Socio, pk=pk)
     if request.method == 'POST':
         form = SocioForm(request.POST, instance=socio)
@@ -368,6 +375,7 @@ def excluir_socio(request, pk):
     return redirect('lista_socios')
 
 def editar_dependente(request, pk):
+    
     dependente = get_object_or_404(Dependentes, pk=pk)
     dois_meses = timedelta(days=60) #validade do exame medico
     if request.method == 'POST':
@@ -401,6 +409,7 @@ def editar_dependente(request, pk):
     return render(request, 'editar_dependente.html', {'form': form})
 
 def editar_socio_foto(request, pk):
+    
     socio = get_object_or_404(Socio, pk=pk)
 
     if request.method == 'POST':

@@ -45,7 +45,7 @@
         .info {
             position: absolute;
             top: 33mm; /* Distância do topo */
-            left: 35mm; /* Distância da esquerda */
+            left: 1mm; /* Distância da esquerda */
             font-size: 13px;
         }
 
@@ -117,11 +117,11 @@
         
         <div class="info">
 
-            <p >{{ dependentes.nome }} - {{ dependentes.tpsocio }} - {{ dependentes.filiacao }}  </p>
+            <p >DEPENDENTE: {{ dependentes.nome }} - {{ dependentes.tpsocio }} - {{ dependentes.filiacao }}  </p>
             {% if dependentes.filiacao == "FILHO(a)" or dependentes.filiacao == "NETO(a)" %}
-                <p >Validade: {{ dependentes.validade }}</p>
+                <p><strong>Validade: {{ dependentes.validade }}</strong></p>
             {% endif %}    
-            <p>{{ socio.nome }} </p>  
+            <p style="text-transform: uppercase;"><strong>TITULAR: {{ socio.nome }}</strong> </p>  
         </div>
         <div class="qrcode">
             <!--<p id="nrcart">Número do Sócio: {{ dependentes.nrcart }}</p>-->
@@ -129,17 +129,16 @@
             
             <!--<button type="button" onclick="previewPrint()">Visualizar Impressão</button>-->
         </div>
+        
+        <!--
         <div class="info2">
             <p><strong>DEPENDENTE:</strong></p>
             {% if dependentes.filiacao == "FILHO(a)" or dependentes.filiacao == "NETO(a)" %}
             <br>
             {% endif %}    
-            <p><strong>TITULAR:</strong></p>    
-
-     
-            
+            <p><strong>TITULAR:</strong></p>  
         </div>
-   
+        -->  
 
     </div>
  
