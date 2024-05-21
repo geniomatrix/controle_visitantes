@@ -38,7 +38,8 @@ INSTALLED_APPS += [
     'porteiros',
     'visitantes',
     'socio',
-    'dashboard'
+    'dashboard',
+    'simple_history',
 
  
 ]
@@ -52,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'

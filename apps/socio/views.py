@@ -481,3 +481,4 @@ def verificar_dependente_ativo(socio_id):
         return dependentes.ativo == 'S'
     except Dependentes.DoesNotExist:
         return False
+    

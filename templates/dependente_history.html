@@ -1,0 +1,14 @@
+<!-- dependente_history.html -->
+
+<h1>Histórico de {{ dependente.nome }}</h1>
+
+<ul>
+    {% for record in history %}
+        <li>
+            Data: {{ record.history_date }}<br>
+            Usuário: {{ record.history_user }}<br>
+            Mudança: {{ record.get_history_type_display }}<br>
+            Campos alterados: {{ record.diff_against(record.prev_record).changed_fields if record.prev_record else "N/A" }}
+        </li>
+    {% endfor %}
+</ul>

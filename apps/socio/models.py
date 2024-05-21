@@ -1,5 +1,7 @@
 # socios/models.py 
 from django.db import models
+from simple_history.models import HistoricalRecords
+
 
 class Socio(models.Model):
 
@@ -65,6 +67,8 @@ class Socio(models.Model):
     cidade = models.CharField(max_length=100, null=True, blank=True)
     estado = models.CharField(max_length=2, null=True, blank=True)
     cep = models.CharField(max_length=9, null=True, blank=True)
+
+    history = HistoricalRecords()
 
     class Meta:
             verbose_name = "Sócio"
@@ -143,6 +147,8 @@ class Dependentes(models.Model):
         null=True,
         blank=True
     )
+
+    history = HistoricalRecords()
 
     class Meta:
             verbose_name = "Dependente"

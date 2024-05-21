@@ -9,7 +9,7 @@ from django.conf.urls.static import static
 
 from dashboard.views import index
 from visitantes.views import (
-    registrar_visitante, informacoes_visitante, finalizar_visita,buscar_visitante,identificacao
+    registrar_visitante, informacoes_visitante, finalizar_visita,buscar_visitante
 )
 
 urlpatterns = [
@@ -30,7 +30,7 @@ urlpatterns = [
     path("visitantes/<int:id>/", informacoes_visitante, name="informacoes_visitante"),
     path("visitantes/<int:id>/finalizar-visita/", finalizar_visita, name="finalizar_visita"),
     path("buscar/", buscar_visitante, name="buscar_visitante"),
-    #path("listad/", lista_dependentes, name="lista_dependentes"),
+    #path("sociohist/", socio_history, name="socio_history"),
     #path("cart/", identificacao, name="carteirinha"),
     
     
