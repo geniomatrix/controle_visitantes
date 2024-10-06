@@ -1,0 +1,53 @@
+{% if socio.foto %}
+  <img src="{{ socio.foto.url }}" alt="{{ socio.nome }} - Foto">
+{% else %}
+  <p>Não há foto para este sócio.</p>
+{% endif %}
+<div  class="card shadow mb-4 text-danger">
+  <h2 class="inactive">Atenção Sócio Inativo</h2>
+  <h2 class="inactive">Detalhes do Sócio Titular: {{ socio.nome }}</h2>
+</div>
+<div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
+  <h3 class="m-0 font-weight-bold text-info" >Registro: {{ socio.nrcart }}</h3>
+</div>
+<p>Email: {{ socio.email }}</p>
+<p>Data de Nascimento: {{ socio.data_nascimento }}</p>
+<p>Telefone: {{ socio.telefone }}</p>
+<p>Tipo de Sócio: {{ socio.tpsocio }}</p>
+<div class="card-header py-13 d-sm-flex align-items-center justify-content-between mb-4">
+  <h3 class="inactive" >Sócio Inativo</h3>
+</div>
+<h3 class="m-0 font-weight-bold text-warning">Validade do exame médico: {{socio.dtexame_fin }}</h3>
+<a href="#" id="voltar-link">Voltar para página anterior</a>
+<script>
+    // Define o tempo limite em milissegundos
+    var timeoutMilliseconds = 60000; // 1 MINUTO
+
+    // Função para redirecionar para a página anterior
+    function redirectToPreviousPage() {
+          history.back();
+    }
+
+    // Define a função para redirecionar após o tempo limite
+    var timeout = setTimeout(redirectToPreviousPage, timeoutMilliseconds);
+
+    // Adiciona um evento de clique ao link de redirecionamento
+    document.getElementById("voltar-link").addEventListener("click", function(event){
+        event.preventDefault(); // Evita o comportamento padrão do link
+        clearTimeout(timeout); // Cancela o timeout
+        redirectToPreviousPage(); // Redireciona para a página anterior imediatamente
+    });
+</script>
+<style>
+  /* CSS para cor vermelha */
+  body {
+      font-family: Arial, sans-serif;
+  }
+  h1 {
+      color: red; /* Cor vermelha para o título */
+  }
+  .inactive {
+      color: red; /* Cor vermelha para o texto */
+      font-weight: bold;
+  }
+</style>

@@ -1,14 +1,21 @@
 {
+    "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: Django",
-            "type": "debugpy",
+            "name": "Python: Django",
+            "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}\\manage.py",
+            "program": "${workspaceFolder}/manage.py",
             "args": [
-                "runserver"
+                "runserver",
+                "--noreload"
             ],
-            "django": true
+            "django": true,
+            "console": "integratedTerminal",
+            "justMyCode": false,   // Para incluir bibliotecas de terceiros no debugging, se necessário
+            "env": {
+                "DJANGO_SETTINGS_MODULE": "controle_visitantes.settings"
+            }
         }
     ]
 }

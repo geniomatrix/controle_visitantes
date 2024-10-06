@@ -1,0 +1,13 @@
+/* dark_mode.css */
+
+/* Definição dos estilos para o modo escuro */
+body.dark-mode {
+    background-color: #333; /* Cor de fundo do modo escuro */
+    color: #fff; /* Cor do texto no modo escuro */
+}
+
+/* Exemplo de estilização de um elemento específico */
+.dark-mode .my-element {
+    background-color: #555; /* Cor de fundo específica para o modo escuro */
+    color: #eee; /* Cor do texto específica para o modo escuro */
+}

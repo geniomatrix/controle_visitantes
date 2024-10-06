@@ -1,8 +1,9 @@
 # socios/views.py
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Socio, Dependentes
 from .forms import SocioForm, DependenteForm,BuscaSocioForm,SocioSearchForm,DependenteSearchForm
-from datetime import timedelta
+from datetime import date, timedelta,datetime
 from django.utils import timezone
 from .utils import preencher_endereco_por_cep
 import qrcode
@@ -12,9 +13,13 @@ import base64
 from django.http import HttpResponseRedirect,JsonResponse
 import cv2
 import numpy as np
+from dateutil.relativedelta import relativedelta
+from django.db.models import Q  # Importa Q para a query com OR
+
+
 
 def gerar_qr_code(data):
-    qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=5, border=2)
+    qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=4, border=2)
     qr.add_data(data)
     #redimensiona o conteúdo do qrcode para caber o conteúdo
     qr.make(fit=True)
@@ -53,19 +58,39 @@ def cartdep(request, pk):
         # Se algum dos campos estiver vazio, retorne uma resposta de erro ou faça o tratamento adequado
         return render(request, 'erro.html', {'mensagem': 'Os dados do dependente estão incompletos'})
 
+
 def lista_socioscart(request):
+    
     socios = Socio.objects.all()
     dependentes = Dependentes.objects.all()
-
     query = request.GET.get('q')
     if query:
         socios = socios.filter(nome__icontains=query)
         dependentes = dependentes.filter(nome__icontains=query)
+        paginator = Paginator(socios, 10)  # Exibir 10 sócios por página
+        
+        page = request.GET.get('page')
 
-    return render(request, 'lista_socioscart.html', {'socios': socios, 'dependentes': dependentes})
+    
+        try:
+            socios = paginator.get_page(page)
+        except PageNotAnInteger:
+            # Se page não for um inteiro, exibir a primeira página
+            socios = paginator.get_page(1)
+        except EmptyPage:
+            # Se a página está fora do intervalo, exibir a última página de resultados
+            socios = paginator.get_page(paginator.page)
+    
+    
+    context = {'socios': socios, 'dependentes': dependentes}
+    
+    return render(request, 'lista_socioscart.html', context)
+ 
+    
 
 
 def lista_socios(request):
+    
     #socio = Socio.objects.all() #Socio.objects.filter(ativo='Sim')
     #return render(request, 'lista_socios.html', {'socio': socio})
     form = SocioSearchForm(request.GET)
@@ -73,13 +98,23 @@ def lista_socios(request):
 
     if form.is_valid():
         search_term = form.cleaned_data['search_term']
-        #socios = socios.filter(nome__icontains=search_term) | socios.filter(registro__icontains=search_term)
         socios = socios.filter(nome__icontains=search_term)
+        paginator = Paginator(socios, 30)  # Exibir 10 sócios por página
+        page = request.GET.get('page')
+        try:
+            socios = paginator.page(page)
+        except PageNotAnInteger:
+            # Se page não for um inteiro, exibir a primeira página
+            socios = paginator.page(1)
+        except EmptyPage:
+            # Se a página está fora do intervalo, exibir a última página de resultados
+            socios = paginator.page(paginator.num_pages)
 
     context = {'socio': socios, 'form': form}
     return render(request, 'lista_socios.html', context)
 
 def lista_socios_altera(request):
+    
     #socio = Socio.objects.all() #Socio.objects.filter(ativo='Sim')
     #return render(request, 'lista_socios.html', {'socio': socio})
     form = SocioSearchForm(request.GET)
@@ -89,12 +124,22 @@ def lista_socios_altera(request):
         search_term = form.cleaned_data['search_term']
         #socios = socios.filter(nome__icontains=search_term) | socios.filter(registro__icontains=search_term)
         socios = socios.filter(nome__icontains=search_term)
+        paginator = Paginator(socios, 30)  # Exibir 10 sócios por página
+        page = request.GET.get('page')
+        try:
+            socios = paginator.page(page)
+        except PageNotAnInteger:
+            # Se page não for um inteiro, exibir a primeira página
+            socios = paginator.page(1)
+        except EmptyPage:
+            # Se a página está fora do intervalo, exibir a última página de resultados
+            socios = paginator.page(paginator.num_pages)
 
     context = {'socio': socios, 'form': form}
     return render(request, 'lista_socios_altera.html', context)
 
 def lista_dependentes(request):
-
+    
     form = DependenteSearchForm(request.GET)
     dependentes = Dependentes.objects.all()
 
@@ -102,12 +147,22 @@ def lista_dependentes(request):
         search_term = form.cleaned_data['search_term']
         #socios = socios.filter(nome__icontains=search_term) | socios.filter(registro__icontains=search_term)
         dependentes = dependentes.filter(nome__icontains=search_term)
+        paginator = Paginator(dependentes, 30)  # Exibir 10 sócios por página
+        page = request.GET.get('page')
+        try:
+            dependentes = paginator.page(page)
+        except PageNotAnInteger:
+            # Se page não for um inteiro, exibir a primeira página
+            dependentes = paginator.page(1)
+        except EmptyPage:
+            # Se a página está fora do intervalo, exibir a última página de resultados
+            dependentes = paginator.page(paginator.num_pages)
 
     context = {'dependentes': dependentes, 'form': form}
     return render(request, 'lista_dependentes.html', context)
 
 def lista_dependentes_altera(request):
-
+    
     form = DependenteSearchForm(request.GET)
     dependentes = Dependentes.objects.all()
 
@@ -115,30 +170,53 @@ def lista_dependentes_altera(request):
         search_term = form.cleaned_data['search_term']
         #socios = socios.filter(nome__icontains=search_term) | socios.filter(registro__icontains=search_term)
         dependentes = dependentes.filter(nome__icontains=search_term)
+        paginator = Paginator(dependentes, 30)  # Exibir 10 sócios por página
+        page = request.GET.get('page')
+        try:
+            dependentes = paginator.page(page)
+        except PageNotAnInteger:
+            # Se page não for um inteiro, exibir a primeira página
+            dependentes = paginator.page(1)
+        except EmptyPage:
+            # Se a página está fora do intervalo, exibir a última página de resultados
+            dependentes = paginator.page(paginator.num_pages)
+
 
     context = {'dependentes': dependentes, 'form': form}
     return render(request, 'lista_dependentes_altera.html', context)
 
 def detalhes_socio(request, socio_id):
+    
     socio = get_object_or_404(Socio, pk=socio_id)
+    data_atual = date.today()
  
     dependente_form = DependenteForm()
     dois_meses = timedelta(days=60) #validade do exame medico
     if request.method == 'POST':
         dependente_form = DependenteForm(request.POST)
-        if dependente_form.is_valid():
+        if dependente_form.is_valid() :
             dependente = dependente_form.save(commit=False)
             dependente.socio = socio
             #valida conforme filiação
             if dependente.filiacao == "FILHO(a)":
-                qtd_anos = timedelta(days=365 * 25)
-                #dependente.validade = timezone.now().date() + qtd_anos
-                dependente.validade = dependente.data_nascimento + qtd_anos
+                #qtd_anos = timedelta(days=(365 * 25)- 1)
+                #print(dependente.data_nascimento)
+                #print(qtd_anos)
+                dependente.validade = dependente.data_nascimento + relativedelta(years=22) - timedelta(days=1)
             elif dependente.filiacao == "NETO(a)":
-                qtd_anos = timedelta(days=365 * 12)
+                #qtd_anos = timedelta(days=365 * 12)- timedelta(days=1)
                 #dependente.validade = timezone.now().date() + qtd_anos
-                dependente.validade = dependente.data_nascimento + qtd_anos
-            dependente.dtexame_fin = timezone.now().date() + dois_meses
+                dependente.validade = dependente.data_nascimento + relativedelta(years=13) - timedelta(days=1)
+           # dependente.dtexame_fin = timezone.now().date() + dois_meses
+            if dependente.dtexame_ini:   
+                if dependente.dtexame_fin:
+                    diferenca_dias = dependente.dtexame_ini - dependente.dtexame_fin
+                    if diferenca_dias.days > 60:
+                        dependente.dtexame_fin = dependente.dtexame_ini + dois_meses
+                    else:
+                        dependente.dtexame_fin = dependente.dtexame_ini + dois_meses            
+                else:
+                    dependente.dtexame_fin = dependente.dtexame_ini + dois_meses            
             existe_registros = Dependentes.objects.exists()
             if existe_registros:  
                 ultimo_registro = Dependentes.objects.latest('id')
@@ -151,27 +229,30 @@ def detalhes_socio(request, socio_id):
 
             return redirect('detalhes_socio', socio_id=socio_id)
 
-    return render(request, 'detalhes_socio.html', {'socio': socio, 'dependente_form': dependente_form})
+    return render(request, 'detalhes_socio.html', {'socio': socio, 'dependente_form': dependente_form,'data_atual': data_atual})
 
 def detalhes_dependente(request, dependente_id):
+     # Filtrar os dependentes ativos do sócio
     dependente = get_object_or_404(Dependente, pk=dependente_id)
+ 
+
  
     dependente_form = DependenteForm()
     dois_meses = timedelta(days=60) #validade do exame medico
     if request.method == 'POST':
         dependente_form = DependenteForm(request.POST)
-        if dependente_form.is_valid():
+        if dependente_form.is_valid() :
             dependente = dependente_form.save(commit=False)
             dependente.socio = socio
             #valida conforme filiação
             if dependente.filiacao == "FILHO(a)":
-                qtd_anos = timedelta(days=365 * 25)
+                #qtd_anos = timedelta(days=365 * 26) - timedelta(days=1)
                 #dependente.validade = timezone.now().date() + qtd_anos
-                dependente.validade = dependente.data_nascimento + qtd_anos
+                dependente.validade = dependente.data_nascimento + relativedelta(years=26) - timedelta(days=1)
             elif dependente.filiacao == "NETO(a)":
-                qtd_anos = timedelta(days=365 * 12)
+                #qtd_anos = timedelta(days=365 * 13) - timedelta(days=1)
                 #dependente.validade = timezone.now().date() + qtd_anos
-                dependente.validade = dependente.data_nascimento + qtd_anos
+                dependente.validade = dependente.data_nascimento + relativedelta(years=13) - timedelta(days=1)
             dependente.dtexame_fin = timezone.now().date() + dois_meses
             existe_registros = Dependentes.objects.exists()
             if existe_registros:  
@@ -190,24 +271,36 @@ def detalhes_dependente(request, dependente_id):
 
 
 def buscar_socio(request):
+    
     socio_id = None
+    data_atual = date.today()  # Data atual
     if request.method == 'POST':
         form = BuscaSocioForm(request.POST)
         if form.is_valid():
             #socio_id = form.cleaned_data['socio_id']
             nrcart = form.cleaned_data['nrcart']
+            
             try:
                 #socio = Socio.objects.get(pk=socio_id)
                 socio = Socio.objects.get(nrcart=nrcart)
                 socio_id = socio.id
-                return render(request, 'detalhes_sociocart.html', {'socio': socio,'socio_id': socio_id})
+                #verifica se o sócio esta ativo
+                socio_ativo = verificar_socio_ativo(socio_id)
+                if socio_ativo != 'N':
+                    return render(request, 'detalhes_sociocart.html', {'socio': socio, 'socio_id': socio_id, 'data_atual': data_atual})
+                else:
+                    return render(request, 'detalhes_sociocart_inativo.html', {'socio': socio, 'socio_id': socio_id, 'data_atual': data_atual})    
                 #return redirect('detalhes_socio', socio_id=socio_id)
             except Socio.DoesNotExist:
                 try:
                     dependente = Dependentes.objects.get(nrcart=nrcart)
                     socio = dependente.socio
-                    socio_id = socio.id
-                    return render(request, 'detalhes_dependente.html', {'dependente': dependente,'socio': socio, 'socio_id': socio_id})
+                    dependente_id = dependente.id
+                    dependente_ativo = verificar_dependente_ativo(dependente_id)
+                    if dependente_ativo != 'N':
+                        return render(request, 'detalhes_dependente.html', {'dependente': dependente, 'socio': socio, 'socio_id': socio_id,'data_atual': data_atual})
+                    else:
+                        return render(request, 'detalhes_dependente_inativo.html', {'dependente': dependente, 'socio': socio, 'socio_id': socio_id,'data_atual': data_atual})    
 
                 except Dependentes.DoesNotExist:
                     mensagem = 'Sócio e dependente não encontrado.'.format(nrcart)
@@ -215,7 +308,7 @@ def buscar_socio(request):
     else:
         form = BuscaSocioForm()
 
-    return render(request, 'buscar_socio_acesso.html', {'form': form})
+    return render(request, 'buscar_socio_acesso.html', {'form': form, 'data_atual': data_atual})
 
 def search_socio(request):
     form = SocioSearchForm(request.GET)
@@ -229,6 +322,7 @@ def search_socio(request):
     return render(request, 'search_results.html', {'form': form, 'results': results})  
  
 def cadastrar_socio(request):
+    
     if request.method == 'POST':
         form = SocioForm(request.POST)
         if form.is_valid():
@@ -260,13 +354,19 @@ def cadastrar_socio(request):
     return render(request, 'cadastrar_socio.html', {'form': form})
 
 def editar_socio(request, pk):
+    
     socio = get_object_or_404(Socio, pk=pk)
     if request.method == 'POST':
         form = SocioForm(request.POST, instance=socio)
-        dois_meses = timedelta(days=60) #validade do exame medico
+        dois_meses = timedelta(days=60)  #validade do exame medico
         if form.is_valid():
-            socio.dtexame_fin = timezone.now().date() + dois_meses
-            #socio.foto = request.FILES['foto']
+            if socio.dtexame_ini:
+                if socio.dtexame_fin:
+                    diferenca_dias = socio.dtexame_ini - socio.dtexame_fin
+                    if diferenca_dias.days > 60:
+                        socio.dtexame_fin = socio.dtexame_ini + dois_meses
+                else:
+                    socio.dtexame_fin = socio.dtexame_ini + dois_meses            
             form.save()
             return redirect('lista_socios_altera')
     else:
@@ -279,21 +379,33 @@ def excluir_socio(request, pk):
     return redirect('lista_socios')
 
 def editar_dependente(request, pk):
+    
     dependente = get_object_or_404(Dependentes, pk=pk)
     dois_meses = timedelta(days=60) #validade do exame medico
     if request.method == 'POST':
         form = DependenteForm(request.POST, instance=dependente)
         if form.is_valid():
+           
            #valida conforme filiação
+            
             if dependente.filiacao == "FILHO(a)":
-                qtd_anos = timedelta(days=365 * 25)
+                #qtd_anos = timedelta(days=365 * 26) - timedelta(days=1)
                 #dependente.validade = timezone.now().date() + qtd_anos
-                dependente.validade = dependente.data_nascimento + qtd_anos
+                dependente.validade = dependente.data_nascimento + relativedelta(years=26) - timedelta(days=1)
             elif dependente.filiacao == "NETO(a)":
-                qtd_anos = timedelta(days=365 * 12)
+                #qtd_anos = timedelta(days=365 * 13) - - timedelta(days=1)
                 #dependente.validade = timezone.now().date() + qtd_anos
-                dependente.validade = dependente.data_nascimento + qtd_anos            
-            dependente.dtexame_fin = timezone.now().date() + dois_meses
+                dependente.validade = dependente.data_nascimento + relativedelta(years=13) - timedelta(days=1)            
+            #dependente.dtexame_fin = timezone.now().date() + dois_meses
+            if dependente.dtexame_ini:
+                if dependente.dtexame_fin:
+                    diferenca_dias = dependente.dtexame_ini - dependente.dtexame_fin
+                    if diferenca_dias.days > 60:
+                        dependente.dtexame_fin = dependente.dtexame_ini + dois_meses
+                    else:
+                        dependente.dtexame_fin = dependente.dtexame_ini + dois_meses            
+                else:
+                    dependente.dtexame_fin = dependente.dtexame_ini + dois_meses
             form.save()
             return redirect('lista_dependentes')  # Redirecionar para página de sucesso após edição
     else:
@@ -301,6 +413,7 @@ def editar_dependente(request, pk):
     return render(request, 'editar_dependente.html', {'form': form})
 
 def editar_socio_foto(request, pk):
+    
     socio = get_object_or_404(Socio, pk=pk)
 
     if request.method == 'POST':
@@ -358,3 +471,17 @@ def upload_photo(request):
         return JsonResponse({'message': 'Foto recebida e salva com sucesso!'})
     else:
         return JsonResponse({'error': 'Nenhuma imagem recebida.'}, status=400)
+
+def verificar_socio_ativo(socio_id):
+    try:
+        socio = Socio.objects.get(id=socio_id)
+        return socio.ativo == 'S'
+    except Socio.DoesNotExist:
+        return False
+
+def verificar_dependente_ativo(socio_id):
+    try:
+        dependentes = Dependentes.objects.get(id=socio_id)
+        return dependentes.ativo == 'S'
+    except Dependentes.DoesNotExist:
+        return False

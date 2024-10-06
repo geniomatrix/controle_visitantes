@@ -13,6 +13,7 @@ SECRET_KEY = ')64rar(pqn=3c!i@-+7d@^2$4@!@(7%lmde$yo(cdk(w8s*526'
 DEBUG = True
 
 ALLOWED_HOSTS = []
+#['geniomatrix.pythonanywhere.com']
 
 sys.path.append(
     os.path.join(BASE_DIR, "apps")
@@ -40,7 +41,7 @@ INSTALLED_APPS += [
     'socio',
     'dashboard'
 
- 
+
 ]
 
 
@@ -54,6 +55,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',  # Login com nome de usuário
+    'apps.usuarios.authentication.EmailBackend',  # Login com e-mail
+)
+
+
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 ROOT_URLCONF = 'controle_visitantes.urls'
@@ -61,6 +68,7 @@ ROOT_URLCONF = 'controle_visitantes.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        #'DIRS': ["controle_visitantes/templates"],
         'DIRS': ["templates"],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -119,7 +127,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 DATE_FORMAT = 'd/m/Y'
 
@@ -140,5 +148,10 @@ STATICFILES_DIRS = [
 
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "index"
+
+MEDIA_ROOT = '/home/geniomatrix/controle_visitantes/media'
+MEDIA_URL = '/media/'
+STATIC_ROOT = '/home/geniomatrix/controle_visitantes/static'
+STATIC_URL = '/static/'
 
 

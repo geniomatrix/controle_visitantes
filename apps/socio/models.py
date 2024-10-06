@@ -37,7 +37,7 @@ class Socio(models.Model):
     )
 
     dtexame_ini = models.DateField(
-        verbose_name="Dia do Exame",
+        verbose_name="Data do pagamento da taxa da piscina",
         auto_now_add=False,
         auto_now=False,
         blank=True,
@@ -45,7 +45,7 @@ class Socio(models.Model):
 
     )
     dtexame_fin = models.DateField(
-        verbose_name="Validade do Exame",
+        verbose_name="Validade da taxa da piscina",
         auto_now_add=False,
         auto_now=False,
         blank=True,
@@ -80,8 +80,8 @@ class Dependentes(models.Model):
         ("FILHO(a)", "Filho(a)"),
         ("NETO(a)", "Neto(a)"),
         ("BISNETO(a)", "Bisneto(a)"),
-        ("SOGRO(a)", "Sogro(a)"),
-        ("PAIS", "Pais"),
+    #    ("SOGRO(a)", "Sogro(a)"),
+     #   ("PAIS", "Pais"),
     ]
 
     OPC_ATIVAR = [
@@ -111,7 +111,7 @@ class Dependentes(models.Model):
     )
 
     dtexame_ini = models.DateField(
-        verbose_name="Dia do Exame",
+        verbose_name="Data do pagamento da taxa da piscina",
         auto_now_add=False,
         auto_now=False,
         blank=True,
@@ -119,7 +119,7 @@ class Dependentes(models.Model):
 
     )
     dtexame_fin = models.DateField(
-        verbose_name="Validade do Exame",
+        verbose_name="Validade da taxa da piscina",
         auto_now_add=False,
         auto_now=False,
         blank=True,

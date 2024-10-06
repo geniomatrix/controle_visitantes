@@ -20,59 +20,68 @@
         .container {
             width: 86mm; /* Largura da carteirinha CR80 */
             height: 88mm; /* Altura da carteirinha CR80 */
-            border: 1px solid #000000;
+            border: 0px solid #000000;
             position: relative;
             padding: 5mm; /* Espaçamento interno */
         }
 
         .logo {
             position: absolute;
-            top: 5mm; /* Distância do topo */
-            left: 5mm; /* Distância da esquerda */
-            max-width: 20mm; /* Largura máxima do logo */
-            max-height: 10mm; /* Altura máxima do logo */
+            top: 2mm; /* Distância do topo */
+            left: 35mm; /* Distância da esquerda */
+            max-width: 35mm; /* Largura máxima do logo */
+            max-height: 25mm; /* Altura máxima do logo */
         }
+
 
         .foto {
             position: absolute;
             top: 2mm; /* Distância do topo */
-            right: 5mm; /* Distância da direita */
-            max-width: 20mm; /* Largura máxima da foto */
-            max-height: 25mm; /* Altura máxima da foto */
+            left: 5mm; /* Distância da esquerda */
+            max-width: 40mm; /* Largura máxima da foto */
+            max-height: 45mm; /* Altura máxima da foto */
         }
 
         .info {
             position: absolute;
-            top: 25mm; /* Distância do topo */
-            left: 25mm; /* Distância da esquerda */
-            font-size: 12px;
-        }
-
-        .qrcode {
-            position: absolute;
-            top: 50mm; /* Distância do topo */
-            left: 20mm; /* Distância da esquerda */
-            font-size: 12px;
+            top: 33mm; /* Distância do topo */
+            left: 1mm; /* Distância da esquerda */
+            font-size: 13px;
         }
 
         .info2 {
             position: absolute;
-            top: 25mm; /* Distância do topo */
-            left: 3mm; /* Distância da esquerda */
-            font-size: 15px;
+            top: 35mm; /* Distância do topo */
+            left: 1mm; /* Distância da esquerda */
+            font-size: 14px;
         }
 
-        .titulo {
+        .qrcode {
             position: absolute;
             top: 1mm; /* Distância do topo */
-            left: 15mm; /* Distância da esquerda */
-            font-size: 15px;
+            right: 2mm; /* Distância da direita */
+            font-size: 12px;
         }
+
+   
+        .titulo {
+            position: absolute;
+            top: 60mm; /* Distância do topo */
+            left: 3mm; /* Distância da esquerda */
+            font-size: 13px;
+        }
+
+        .titulo2 {
+            position: absolute;
+            top: 65mm; /* Distância do topo */
+            left: 3mm; /* Distância da esquerda */
+            font-size: 13px;
+        }        
 
         .subtitulo {
             position: absolute;
-            top: 8mm; /* Distância do topo */
-            left: 15mm; /* Distância da esquerda */
+            top: 75mm; /* Distância do topo */
+            left: 3mm; /* Distância da esquerda */
             font-size: 12px;
         }
 
@@ -87,14 +96,17 @@
 </head>
 <body>
     <div class="container">
-        <img class="logo" id="logo" src={% static "images/logoccspg.png"%} alt="Clube"> <br>
-        <h3 class="titulo" id="titulo">CCS SBC</h3><br>
+        <img class="logo" id="logo" src={% static "images/logoccs.png"%} alt="Clube"> <br>
+        <h3 class="titulo" id="titulo">Centro Civico Social Esportivo dos Servidores</h3><br>
+        <h3 class="titulo2" id="titulo">Públicos Municipais de São Bernardo do Campo</h3><br>
         <div class="subtitulo">
-            <p id="end">Riacho Grande-SBCampo-S.Paulo </p>
-            <p id="fone">Administração - Fone 99770-3338 </p>
+            <p id="end">Rua Frei Angélico Manente nº 325 - Jardim Tupã </p>
+            <p id="end">Riacho Grande-SBC-SP </p>
+            <p id="fone">Telefone:(11) 99770-3338 (WhatsApp) </p>
             <div class="linha-divisoria"></div>    
          
         </div>
+ 
 
         {% if dependentes.foto %}
             <img class="foto" id="foto" style="right: 10mm width: 15mm; height: 25mm;" src="{{ dependentes.foto.url }}" alt="{{ dependentes.nome }} - Foto">
@@ -105,9 +117,11 @@
         
         <div class="info">
 
-            <p >Nome: {{ dependentes.nome }}</p>
-            <p >Vencimento: {{ dependentes.dtexame_fin }}</p>
-            <p>Titular: {{ socio.nome }} </p>  
+            <p style="text-transform: uppercase; color: blue;" ><strong>DEPENDENTE: {{ dependentes.nome }} - {{ dependentes.tpsocio }} - {{ dependentes.filiacao }} </strong> </p>
+            {% if dependentes.filiacao == "FILHO(a)" or dependentes.filiacao == "NETO(a)" %}
+                <p><strong>Validade: {{ dependentes.validade }}</strong></p>
+            {% endif %}    
+            <p style="text-transform: uppercase;"><strong>TITULAR: {{ socio.nome }}</strong> </p>  
         </div>
         <div class="qrcode">
             <!--<p id="nrcart">Número do Sócio: {{ dependentes.nrcart }}</p>-->
@@ -115,13 +129,16 @@
             
             <!--<button type="button" onclick="previewPrint()">Visualizar Impressão</button>-->
         </div>
+        
+        <!--
         <div class="info2">
-            <p><strong>TITULAR</strong></p>
-            <p>Categoria</p>
-            <p ><strong>{{ dependentes.tpsocio }}</strong></p>
-            
+            <p><strong>DEPENDENTE:</strong></p>
+            {% if dependentes.filiacao == "FILHO(a)" or dependentes.filiacao == "NETO(a)" %}
+            <br>
+            {% endif %}    
+            <p><strong>TITULAR:</strong></p>  
         </div>
-   
+        -->  
 
     </div>
  
