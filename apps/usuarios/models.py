@@ -1,90 +1,28 @@
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
-from django.contrib.auth.models import (
-    BaseUserManager,
-    AbstractBaseUser,
-    PermissionsMixin,
-)
-
 
 class UsuarioManager(BaseUserManager):
-
-    def create_user(self, email, tipo_usuario, password=None):
-        user = self.model(
-            email=self.normalize_email(email),
-            tipo_usuario=tipo_usuario,
-        )
-
-        user.is_active = True
-        user.is_staff = False
-        user.is_superuser = False
-
-        if password:
-            user.set_password(password)
-
-        user.save(using=self._db)
-
-        return user
-
-    def create_superuser(self, email, password):
-        user = self.create_user(
-            email=self.normalize_email(email),
-            password=password,
-            tipo_usuario="P",
-        )
-
-        user.is_active = True
-        user.is_staff = True
-        user.is_superuser = True
-
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError("O e-mail é obrigatório")
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
-
         return user
 
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        return self.create_user(email, password, **extra_fields)
 
 class Usuario(AbstractBaseUser, PermissionsMixin):
+    email = models.EmailField(unique=True)
+    nome = models.CharField(max_length=255, null=True, blank=True)  # Adicionando o campo nome
+    tipo_usuario = models.CharField(max_length=20)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
 
-    TIPO_USUARIO = (
-        ("P", "Porteiro"),
-        ("S", "Sócio"),
-    )
-
-    email = models.EmailField(
-        verbose_name="E-mail do usuário",
-        max_length=254,
-        unique=True,
-    )
-
-    tipo_usuario = models.CharField(
-        verbose_name="Tipo de usuário",
-        max_length=1,
-        choices=TIPO_USUARIO,
-        default="S",
-    )
-
-    is_active = models.BooleanField(
-        "usuario ativo?",
-        default=False
-    )
-
-    is_staff = models.BooleanField(
-        "usuario é da equipe de desenvolvimento?",
-        default=False
-    )
-
-    is_superuser = models.BooleanField(
-        "usuario é um superusuário?",
-        default=False
-    )
-
-    USERNAME_FIELD = "email"
-
-    objects = UsuarioManager()
-
-    class Meta:
-        verbose_name="Usuário"
-        verbose_name_plural = "Usuários"
-        db_table = "usuario"
-
-    def __str__(self):
-        return self.email
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []

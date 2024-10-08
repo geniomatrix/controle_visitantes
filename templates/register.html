@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% load widget_tweaks %}
+
+{% block conteudo %}
+<div class="container">
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <h4 class="mb-3 text-primary">
+                Controle de Sócios - Registra-se 
+            </h4>
+            <p class="card shadow mb-4 text-danger">
+                <small>
+                    *ao registrar você terá acesso ao sistema 
+                </small>        
+            </p>   
+            
+            {% if form.errors %}
+                {% for field in form %}
+                    {% if field.errors %}
+                        {% for erro in field.errors %}
+                            <div class="alert alert-warning" role="alert"> 
+                                {{ erro }}
+                            </div>
+                        {% endfor %}        
+                    {% endif %}
+                {% endfor %}
+
+            {% endif %}
+                        
+            <h2>Registrar-se</h2>
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Registrar</button>
+            </form>
+            
+        </div>
+    </div>
+</div>
+{% endblock conteudo %}
+
+
+
+
+
+
+

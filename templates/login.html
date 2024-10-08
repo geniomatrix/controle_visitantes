@@ -30,7 +30,7 @@
                         <div class="row">
                             
                             <div class="col-lg-6 d-none d-lg-block ">
-                                <img src={% static "images/logoccs.png"%} alt="Clube"> 
+                                <img src={% static "images/logoccs.png" %} alt="Clube"> 
                             </div>
 
                             <div class="col-lg-6">
@@ -65,6 +65,15 @@
                                             <span class="text">Acessar sistema</span>
                                         </button>
                                     </form>
+
+                                    <!-- Adicionar o link para registro -->
+                                    <p class="mt-4 text-center">
+                                        Ainda não tem uma conta? <a href="{% url 'register' %}" class="text-primary">Crie uma aqui</a>.
+                                    </p>
+                                    <p>
+                                        <!--<a href="{% url 'password_reset' %}">Esqueci minha senha</a>-->
+                                    </p>
+
                                 </div>
                             </div>
                         </div>

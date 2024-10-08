@@ -39,7 +39,8 @@ INSTALLED_APPS += [
     'porteiros',
     'visitantes',
     'socio',
-    'dashboard'
+    'dashboard',
+
 
 
 ]
@@ -56,7 +57,7 @@ MIDDLEWARE = [
 ]
 
 AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',  # Login com nome de usuário
+    #'django.contrib.auth.backends.ModelBackend',  # Login com nome de usuário
     'apps.usuarios.authentication.EmailBackend',  # Login com e-mail
 )
 
