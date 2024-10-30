@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 {% block conteudo %}
+{% if messages %}
+{% for message in messages %}
+    <div class="alert alert-success" role="alert">
+        {{ message }}
+    </div>
+{% endfor %}
+{% endif %}
 {% if socio.foto %}
   <img src="{{ socio.foto.url }}" alt="{{ socio.nome }} - Foto">
 {% else %}
@@ -17,10 +24,11 @@
 <p>Telefone: {{ socio.telefone }}</p>
 <p>Tipo de Sócio: {{ socio.tpsocio }}</p>
 
-{% if socio.dtexame_fin < today %}
+{% if socio.dtexame_fin < data_atual %}
   <h3 class="m-0 font-weight-bold text-danger">Validade do exame médico: {{ socio.dtexame_fin }} (Exame Vencido)</h3>
+  <p class="lead font-weight-bold text-danger">Atenção: ****Pagar taxa do exame****</p>
 {% else %}
-  <h3 class="m-0 font-weight-bold text-warning">Validade do exame médico: {{ socio.dtexame_fin }}</h3>
+  <h3 class="m-0 font-weight-bold text-success">Validade do exame médico: {{ socio.dtexame_fin }}</h3>
 {% endif %}
 
 {% if socio.ativo == "S" or socio.ativo == "" %}
@@ -34,14 +42,15 @@
 </div>
 <ul>
   {% for dependente in socio.dependentes.all %}
-    {% if dependente.ativo == 'S' or dependente.ativo == '' %}
+    {% if dependente.ativo == 'Sim' or dependente.ativo == 'S' or dependente.ativo == '' %}
       <li>{{ dependente.nome }} - {{ dependente.data_nascimento }} - {{ dependente.filiacao }} - {{ dependente.validade }}</li>
       <h3 class="m-0 font-weight-bold text-info">Registro: {{ dependente.nrcart }}</h3>
       
-      {% if dependente.dtexame_fin < today %}
+      {% if dependente.dtexame_fin < data_atual %}
         <h3 class="m-0 font-weight-bold text-danger">Validade do exame médico: {{ dependente.dtexame_fin }} (Exame Vencido)</h3>
+        <p class="lead font-weight-bold text-danger">Atenção: ****Pagar taxa do exame****</p>
       {% else %}
-        <h3 class="m-0 font-weight-bold text-warning">Validade do exame médico: {{ dependente.dtexame_fin }}</h3>
+        <h3 class="m-0 font-weight-bold text-success">Validade do exame médico: {{ dependente.dtexame_fin }}</h3>
       {% endif %}
     {% endif %}
   {% endfor %}
@@ -50,7 +59,7 @@
 <div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
   <h3 class="m-0 font-weight-bold text-primary">Adicionar dependente:</h3>
 </div>
-<form method="post" action="">
+<form method="post" action="" enctype="multipart/form-data">
   {% csrf_token %}
   {{ dependente_form.as_p }}
   <button type="submit">Adicionar Dependente</button>

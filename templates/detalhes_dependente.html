@@ -22,11 +22,11 @@
 
 
 
-{% if dependente.dtexame_fin < today or dependente.dtexame_fin == None %}
-  <h3 class="m-0 font-weight-bold text-danger">Validade do exame médico: {{ socio.dtexame_fin }} (Exame Vencido)</h3>
+{% if dependente.dtexame_fin < data_atual or dependente.dtexame_fin == None %}
+  <h3 class="m-0 font-weight-bold text-danger">Validade do exame médico: {{ dependente.dtexame_fin }} (Exame Vencido)</h3>
   <p class="lead font-weight-bold text-danger">Atenção: ****Pagar taxa do exame****</p>
 {% else %}
-  <h3 class="m-0 font-weight-bold text-warning">Validade do exame médico: {{ socio.dtexame_fin }}</h3>
+  <h3 class="m-0 font-weight-bold text-success">Validade do exame médico: {{ dependente.dtexame_fin }}</h3>
 {% endif %}
 
 {% if dependente.ativo == "S" or dependente.ativo == "" %}

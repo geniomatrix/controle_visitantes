@@ -15,6 +15,7 @@ import cv2
 import numpy as np
 from dateutil.relativedelta import relativedelta
 from django.db.models import Q  # Importa Q para a query com OR
+from django.contrib import messages
 
 
 
@@ -193,8 +194,9 @@ def detalhes_socio(request, socio_id):
     dependente_form = DependenteForm()
     dois_meses = timedelta(days=60) #validade do exame medico
     if request.method == 'POST':
-        dependente_form = DependenteForm(request.POST)
+        dependente_form = DependenteForm(request.POST,request.FILES)
         if dependente_form.is_valid() :
+            messages.success(request, "Dependente registrado com sucesso!")
             dependente = dependente_form.save(commit=False)
             dependente.socio = socio
             #valida conforme filiação
@@ -229,7 +231,11 @@ def detalhes_socio(request, socio_id):
 
             return redirect('detalhes_socio', socio_id=socio_id)
 
-    return render(request, 'detalhes_socio.html', {'socio': socio, 'dependente_form': dependente_form,'data_atual': data_atual})
+    return render(request, 'detalhes_socio.html', {
+        'socio': socio, 
+        'dependente_form': dependente_form,
+        'data_atual': data_atual
+        })
 
 def detalhes_dependente(request, dependente_id):
      # Filtrar os dependentes ativos do sócio
@@ -326,6 +332,7 @@ def cadastrar_socio(request):
     if request.method == 'POST':
         form = SocioForm(request.POST)
         if form.is_valid():
+            messages.success(request, "Sócio registrado com sucesso!")
             cep = form.cleaned_data['cep']
             endereco = preencher_endereco_por_cep(cep)
             if endereco:
@@ -348,6 +355,7 @@ def cadastrar_socio(request):
                 form.instance.nrcart = "S" + str(1) + form.instance.tpsocio
                 #form.instance.foto = form.instance.foto.FILES['foto']
                 form.save()
+                
             return redirect('lista_socios')
     else:
         form = SocioForm()
@@ -368,6 +376,7 @@ def editar_socio(request, pk):
                 else:
                     socio.dtexame_fin = socio.dtexame_ini + dois_meses            
             form.save()
+            messages.success(request, "Sócio alterado com sucesso!")
             return redirect('lista_socios_altera')
     else:
         form = SocioForm(instance=socio)
@@ -407,6 +416,7 @@ def editar_dependente(request, pk):
                 else:
                     dependente.dtexame_fin = dependente.dtexame_ini + dois_meses
             form.save()
+            messages.success(request, "Dependente alterado com sucesso!")
             return redirect('lista_dependentes')  # Redirecionar para página de sucesso após edição
     else:
         form = DependenteForm(instance=dependente)

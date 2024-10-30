@@ -1,6 +1,14 @@
 {% extends "base.html" %}
 {% block conteudo %}
+{% if messages %}
+{% for message in messages %}
+    <div class="alert alert-success" role="alert">
+        {{ message }}
+    </div>
+{% endfor %}
+{% endif %}
 <div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
+ 
   <h2 class="m-0 font-weight-bold text-info">Dependentes Cadastrados</h2>
 </div>
 <ul>
