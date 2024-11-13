@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth.models import Group
 
 from .models import Socio, Dependentes
 
@@ -11,3 +12,4 @@ class DependAdmin(admin.ModelAdmin):
     
 admin.site.register(Socio,SocioAdmin)
 admin.site.register(Dependentes,DependAdmin)
+admin.site.register(Group)

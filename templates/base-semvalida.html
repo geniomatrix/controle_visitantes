@@ -41,7 +41,7 @@
                         <span>Início</span>
                     </a>
                 </li>
-                {% if user.is_superuser or user.is_active %} 
+     
                 <hr class="sidebar-divider">
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'lista_dependentes' %}">
@@ -49,6 +49,8 @@
                         <span>Alterar Dependentes</span>
                     </a>
                 </li>
+       
+
                 <hr class="sidebar-divider">
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'buscar_socio' %}">
@@ -57,7 +59,7 @@
                     </a>
                 </li>
                 <hr class="sidebar-divider">
-                {% endif %} 
+ 
 
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'lista_socioscart' %}">
@@ -73,7 +75,6 @@
                         <span>Controle de Visitantes</span>
                     </a>
                 </li>
-                {% if user.is_superuser %} 
                 <hr class="sidebar-divider">
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'admin:index' %}">
@@ -81,7 +82,7 @@
                         <span>Administrador</span>
                     </a>
                 </li>
-                {% endif %} 
+
 
                 <hr class="sidebar-divider">
 

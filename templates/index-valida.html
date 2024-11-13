@@ -6,7 +6,7 @@
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
        
         <h1 class="h3 mb-0 text-gray-800">{{nome_pagina}}</h1>
-        {% if user.is_superuser  %}
+
 
         <a href="{% url 'cadastrar_socio' %}" class="btn btn-primary btn-icon-split btn-sm">
             <span class="text">Registrar sócio</span>
@@ -42,7 +42,7 @@
                 <i class="fas fa-user-plus"></i>
             </span>
         </a>
-        {% endif %}
+     
 
 
 

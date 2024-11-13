@@ -16,8 +16,11 @@ import numpy as np
 from dateutil.relativedelta import relativedelta
 from django.db.models import Q  # Importa Q para a query com OR
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 
+def is_porteiro(user):
+    return user.groups.filter(name="Porteiros").exists()
 
 def gerar_qr_code(data):
     qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=4, border=2)
@@ -31,6 +34,7 @@ def gerar_qr_code(data):
     img.save(buffer)
     return buffer.getvalue()
 
+
 def carteirinha(request, pk):
     #socio = get_object_or_404(Socio, pk=socio_id)
     socio = Socio.objects.get(pk=pk)
@@ -43,6 +47,7 @@ def carteirinha(request, pk):
     else:
         # Se algum dos campos estiver vazio, retorne uma resposta de erro ou faça o tratamento adequado
         return render(request, 'erro.html', {'mensagem': 'Os dados do sócio estão incompletos'})
+
 
 def cartdep(request, pk):
     
@@ -89,7 +94,8 @@ def lista_socioscart(request):
  
     
 
-
+@login_required
+@user_passes_test(is_porteiro)
 def lista_socios(request):
     
     #socio = Socio.objects.all() #Socio.objects.filter(ativo='Sim')
@@ -113,6 +119,7 @@ def lista_socios(request):
 
     context = {'socio': socios, 'form': form}
     return render(request, 'lista_socios.html', context)
+
 
 def lista_socios_altera(request):
     
@@ -138,6 +145,7 @@ def lista_socios_altera(request):
 
     context = {'socio': socios, 'form': form}
     return render(request, 'lista_socios_altera.html', context)
+
 
 def lista_dependentes(request):
     
