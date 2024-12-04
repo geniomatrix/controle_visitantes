@@ -41,7 +41,7 @@
                         <span>Início</span>
                     </a>
                 </li>
-                {% if user.is_superuser or user.is_active %} 
+                {% if user.is_superuser  %} 
                 <hr class="sidebar-divider">
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'lista_dependentes' %}">
@@ -50,6 +50,8 @@
                     </a>
                 </li>
                 <hr class="sidebar-divider">
+                {% endif %} 
+                {% if user.is_superuser or user.is_active %} 
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'buscar_socio' %}">
                         <i class="fa fa-user"></i>
@@ -58,7 +60,7 @@
                 </li>
                 <hr class="sidebar-divider">
                 {% endif %} 
-
+                {% if user.is_superuser  %} 
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'lista_socioscart' %}">
                         <i class="fa fa-print"></i>
@@ -73,7 +75,6 @@
                         <span>Controle de Visitantes</span>
                     </a>
                 </li>
-                {% if user.is_superuser %} 
                 <hr class="sidebar-divider">
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'admin:index' %}">
@@ -169,7 +170,7 @@
                     </div>
                 </div>
             </div>
-
+ 
         <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
         <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js'  %}"></script>
         <script src="{% static 'js/sb-admin-2.min.js'  %}"></script>

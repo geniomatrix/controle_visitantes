@@ -1,47 +1,80 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Seu Título</title>
+  <title>Detalhes do Dependente</title>
   
   <!-- Bootstrap CSS -->
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap JS e dependências -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </head>
+
+<!-- Detalhes do Dependente -->
 {% if dependente.foto %}
   <img src="{{ dependente.foto.url }}" alt="{{ dependente.nome }} - Foto">
 {% else %}
-  <p>Não há foto para este sócio.</p>
+  <p>Não há foto para este dependente.</p>
 {% endif %}
 <div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
-  <h2 class="m-0 font-weight-bold text-primary">Nome Dependente : {{ dependente.nome }}</h2>
+  <h2 class="m-0 font-weight-bold text-primary">Detalhes do Dependente: {{ dependente.nome }}</h2>
 </div>
-<h3 class="m-0 font-weight-bold text-info" >Registro: {{ dependente.nrcart }}</h3>
+<div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
+  <h3 class="m-0 font-weight-bold text-info" >Registro: {{ dependente.nrcart }}</h3>
+</div>
 <p>Data de Nascimento: {{ dependente.data_nascimento }}</p>
+<p>Telefone: {{ dependente.telefone }}</p>
+<p>Nome do Titular: {{ socio.nome }}</p>
 
-<p>Titular: {{ socio.nome }}</p>
-
-
-
-
-{% if dependente.dtexame_fin < data_atual or dependente.dtexame_fin == None %}
+{% if dependente.dtexame_fin < data_atual or dependente.dtexame_ini == None or dependente.dtexame_fin == None %}
   <h3 class="m-0 font-weight-bold text-danger">Validade da taxa da piscina: {{ dependente.dtexame_fin }} (Exame Vencido)</h3>
   <p class="lead font-weight-bold text-danger">Atenção: ****Pagar taxa do exame****</p>
+
+  <!-- Botão Pagar Taxa -->
+  <button class="btn btn-primary" id="pagarTaxaBtn" data-toggle="modal" data-target="#pagarTaxaModal">
+    Pagar Taxa de Piscina
+  </button>
+  
+  <!-- Modal de Confirmação -->
+  <div class="modal fade" id="pagarTaxaModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalLabel">Confirmar Pagamento</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Tem certeza de que deseja pagar a taxa de piscina para <strong>{{ dependente.nome }}</strong>?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          <a href="{% url 'pagar_taxadep' dependente.id %}" class="btn btn-success">Pagar Taxa de Piscina</a>
+        </div>
+      </div>
+    </div>
+  </div>
 {% else %}
   <h3 class="m-0 font-weight-bold text-success">Validade da taxa da piscina: {{ dependente.dtexame_fin }}</h3>
 {% endif %}
 
-{% if dependente.ativo == "S" or dependente.ativo == "" %}
-  <h3 class="m-0 font-weight-bold text-info">Situação: Titulo Ativo</h3>
+{% if dependente.ativo == "S" or dependente.ativo == "Sim" or dependente.ativo == "" %}
+  <h3 class="m-0 font-weight-bold text-info">Situação: Título Ativo</h3>
 {% else %}
-  <h3 class="m-0 font-weight-bold text-danger">Situação: Titulo Encerrado</h3>
+  <h3 class="m-0 font-weight-bold text-danger">Situação: Título Encerrado</h3>
 {% endif %}
+
 <a href="#" id="voltar-link">Voltar para página anterior</a>
+
 <script>
     // Define o tempo limite em milissegundos
     var timeoutMilliseconds = 60000; // 1 MINUTO
 
     // Função para redirecionar para a página anterior
     function redirectToPreviousPage() {
-          history.back();
+        history.back();
     }
 
     // Define a função para redirecionar após o tempo limite
@@ -54,4 +87,3 @@
         redirectToPreviousPage(); // Redireciona para a página anterior imediatamente
     });
 </script>
-

@@ -21,4 +21,6 @@ urlpatterns = [
     path('capturar_foto/', views.capturar_foto, name='capturar_foto'),
     path('editar_dependente/<int:pk>/', views.editar_dependente, name='editar_dependente'),
     path('excluir_socio/<int:pk>/', views.excluir_socio, name='excluir_socio'),
+    path('pagar_taxasocio/<int:pk>/', views.pagar_taxasocio, name='pagar_taxasocio'),
+    path('pagar_taxadep/<int:pk>/', views.pagar_taxadep, name='pagar_taxadep'),
 ]

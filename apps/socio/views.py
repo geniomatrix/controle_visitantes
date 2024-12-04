@@ -17,6 +17,7 @@ from dateutil.relativedelta import relativedelta
 from django.db.models import Q  # Importa Q para a query com OR
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.utils.timezone import now
 
 
 def is_porteiro(user):
@@ -95,7 +96,6 @@ def lista_socioscart(request):
     
 
 @login_required
-@user_passes_test(is_porteiro)
 def lista_socios(request):
     
     #socio = Socio.objects.all() #Socio.objects.filter(ativo='Sim')
@@ -150,7 +150,7 @@ def lista_socios_altera(request):
 def lista_dependentes(request):
     
     form = DependenteSearchForm(request.GET)
-    dependentes = Dependentes.objects.all()
+    dependentes = Dependentes.objects.all().order_by('nome')
 
     if form.is_valid():
         search_term = form.cleaned_data['search_term']
@@ -195,56 +195,56 @@ def lista_dependentes_altera(request):
     return render(request, 'lista_dependentes_altera.html', context)
 
 def detalhes_socio(request, socio_id):
-    
     socio = get_object_or_404(Socio, pk=socio_id)
     data_atual = date.today()
- 
+    dois_meses = timedelta(days=60)
+
     dependente_form = DependenteForm()
-    dois_meses = timedelta(days=60) #validade do exame medico
+
     if request.method == 'POST':
-        dependente_form = DependenteForm(request.POST,request.FILES)
-        if dependente_form.is_valid() :
-            messages.success(request, "Dependente registrado com sucesso!")
+        dependente_form = DependenteForm(request.POST, request.FILES)
+        if dependente_form.is_valid():
             dependente = dependente_form.save(commit=False)
             dependente.socio = socio
-            #valida conforme filiação
+
+            # Validação conforme filiação
+            idade = relativedelta(data_atual, dependente.data_nascimento).years
+            if dependente.filiacao == "FILHO(a)" and idade > 22:
+                messages.error(request, "Dependente do tipo FILHO(a) deve ter até 22 anos.")
+                return redirect('detalhes_socio', socio_id=socio_id)
+            elif dependente.filiacao == "NETO(a)" and idade > 13:
+                messages.error(request, "Dependente do tipo NETO(a) deve ter até 13 anos.")
+                return redirect('detalhes_socio', socio_id=socio_id)
+
+            # Define validade
             if dependente.filiacao == "FILHO(a)":
-                #qtd_anos = timedelta(days=(365 * 25)- 1)
-                #print(dependente.data_nascimento)
-                #print(qtd_anos)
                 dependente.validade = dependente.data_nascimento + relativedelta(years=22) - timedelta(days=1)
             elif dependente.filiacao == "NETO(a)":
-                #qtd_anos = timedelta(days=365 * 12)- timedelta(days=1)
-                #dependente.validade = timezone.now().date() + qtd_anos
                 dependente.validade = dependente.data_nascimento + relativedelta(years=13) - timedelta(days=1)
-           # dependente.dtexame_fin = timezone.now().date() + dois_meses
-            if dependente.dtexame_ini:   
-                if dependente.dtexame_fin:
-                    diferenca_dias = dependente.dtexame_ini - dependente.dtexame_fin
-                    if diferenca_dias.days > 60:
-                        dependente.dtexame_fin = dependente.dtexame_ini + dois_meses
-                    else:
-                        dependente.dtexame_fin = dependente.dtexame_ini + dois_meses            
-                else:
-                    dependente.dtexame_fin = dependente.dtexame_ini + dois_meses            
-            existe_registros = Dependentes.objects.exists()
-            if existe_registros:  
-                ultimo_registro = Dependentes.objects.latest('id')
-                proximo_registro = ultimo_registro.id + 1 
-                dependente.nrcart = "D"+str(proximo_registro)+str(socio_id)+socio.tpsocio
+
+            # Ajusta data de exame
+            if dependente.dtexame_ini:
+                dependente.dtexame_fin = dependente.dtexame_ini + dois_meses
+
+            # Gera número do cartão
+            ultimo_registro = Dependentes.objects.last()
+            proximo_id = (ultimo_registro.id + 1) if ultimo_registro else 1
+            dependente.nrcart = f"D{proximo_id}{socio_id}{socio.tpsocio}"
+
+            try:
                 dependente.save()
-            else:
-                dependente.nrcart = "D"+str(1)+str(socio_id)+socio.tpsocio
-                dependente.save()
+                messages.success(request, "Dependente registrado com sucesso!")
+            except Exception as e:
+                messages.error(request, f"Erro ao salvar o dependente: {str(e)}")
+                return redirect('detalhes_socio', socio_id=socio_id)
 
             return redirect('detalhes_socio', socio_id=socio_id)
 
     return render(request, 'detalhes_socio.html', {
-        'socio': socio, 
+        'socio': socio,
         'dependente_form': dependente_form,
         'data_atual': data_atual
-        })
-
+    })
 def detalhes_dependente(request, dependente_id):
      # Filtrar os dependentes ativos do sócio
     dependente = get_object_or_404(Dependente, pk=dependente_id)
@@ -352,14 +352,14 @@ def cadastrar_socio(request):
             if existe_registros:  
                 ultimo_registro = Socio.objects.latest('id')
                 proximo_registro = ultimo_registro.id + 1 
-                dois_meses = timedelta(days=60)
-                form.instance.dtexame_fin = timezone.now().date() + dois_meses
+                #dois_meses = timedelta(days=60)
+                #form.instance.dtexame_fin = timezone.now().date() + dois_meses
                 form.instance.nrcart = "S" + str(proximo_registro) + form.instance.tpsocio
                 #form.instance.foto = form.instance.foto.FILES['foto']
                 form.save()
             else:
-                dois_meses = timedelta(days=60)
-                form.instance.dtexame_fin = timezone.now().date() + dois_meses
+                #dois_meses = timedelta(days=60)
+                #form.instance.dtexame_fin = timezone.now().date() + dois_meses
                 form.instance.nrcart = "S" + str(1) + form.instance.tpsocio
                 #form.instance.foto = form.instance.foto.FILES['foto']
                 form.save()
@@ -503,3 +503,36 @@ def verificar_dependente_ativo(socio_id):
         return dependentes.ativo == 'S'
     except Dependentes.DoesNotExist:
         return False
+    
+
+
+def pagar_taxasocio(request, pk):
+    # Obtenha o socio pelo ID
+    socio = get_object_or_404(Socio, pk=pk)
+    
+    # Atualize os campos de data
+    socio.dtexame_ini = now()  # Data atual
+    socio.dtexame_fin = now() + timedelta(days=60)  # Adiciona 2 meses
+    socio.save()
+
+    # Mensagem de confirmação
+    messages.success(request, f"A taxa de piscina para {socio.nome} foi paga com sucesso!")
+    
+    # Redirecione para a página de detalhes do socio
+    return redirect('buscar_socio')
+  
+def pagar_taxadep(request, pk):
+    # Obtenha o dependente pelo ID
+    dependente = get_object_or_404(Dependentes, pk=pk)
+    
+    # Atualize os campos de data
+    dependente.dtexame_ini = now()  # Data atual
+    dependente.dtexame_fin = now() + timedelta(days=60)  # Adiciona 2 meses
+    dependente.save()
+
+    # Mensagem de confirmação
+    messages.success(request, f"A taxa de piscina para {dependente.nome} foi paga com sucesso!")
+    
+    # Redirecione para a página de detalhes do dependente
+    return redirect('buscar_socio')
+  

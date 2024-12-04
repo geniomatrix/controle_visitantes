@@ -80,7 +80,8 @@ class Dependentes(models.Model):
         ("FILHO(a)", "Filho(a)"),
         ("NETO(a)", "Neto(a)"),
         ("BISNETO(a)", "Bisneto(a)"),
-        ("PAIS", "Pais")
+        ("PAI", "Pai"),
+        ("Mae", "Mae")
     ]
 
     OPC_ATIVAR = [

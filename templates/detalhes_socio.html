@@ -1,12 +1,17 @@
 {% extends "base.html" %}
 {% block conteudo %}
 {% if messages %}
-{% for message in messages %}
-    <div class="alert alert-success" role="alert">
-        {{ message }}
+  {% for message in messages %}
+    <div class="alert 
+        {% if message.tags == 'success' %}alert-success
+        {% elif message.tags == 'error' %}alert-danger
+        {% elif message.tags == 'warning' %}alert-warning
+        {% else %}alert-info{% endif %}" role="alert">
+      {{ message }}
     </div>
-{% endfor %}
+  {% endfor %}
 {% endif %}
+
 {% if socio.foto %}
   <img src="{{ socio.foto.url }}" alt="{{ socio.nome }} - Foto">
 {% else %}
@@ -24,14 +29,14 @@
 <p>Telefone: {{ socio.telefone }}</p>
 <p>Tipo de Sócio: {{ socio.tpsocio }}</p>
 
-{% if socio.dtexame_fin < data_atual %}
+{% if socio.dtexame_fin < data_atual or not socio.dtexame_ini or not socio.dtexame_fin   %}
   <h3 class="m-0 font-weight-bold text-danger">Validade da taxa da piscina: {{ socio.dtexame_fin }} (Exame Vencido)</h3>
   <p class="lead font-weight-bold text-danger">Atenção: ****Pagar taxa do exame****</p>
 {% else %}
   <h3 class="m-0 font-weight-bold text-success">Validade da taxa da piscina: {{ socio.dtexame_fin }}</h3>
 {% endif %}
 
-{% if socio.ativo == "S" or socio.ativo == "" %}
+{% if socio.ativo == "S" or socio.ativo == "Sim" or socio.ativo == "" %}
   <h3 class="m-0 font-weight-bold text-info">Situação: Titulo Ativo</h3>
 {% else %}
   <h3 class="m-0 font-weight-bold text-danger">Situação: Titulo Encerrado</h3>
@@ -46,7 +51,7 @@
       <li>{{ dependente.nome }} - {{ dependente.data_nascimento }} - {{ dependente.filiacao }} - {{ dependente.validade }}</li>
       <h3 class="m-0 font-weight-bold text-info">Registro: {{ dependente.nrcart }}</h3>
       
-      {% if dependente.dtexame_fin < data_atual %}
+      {% if dependente.dtexame_fin < data_atualor or not dependente.dtexame_ini or not dependente.dtexame_fin   %}
         <h3 class="m-0 font-weight-bold text-danger">Validade da taxa da piscina: {{ dependente.dtexame_fin }} (Exame Vencido)</h3>
         <p class="lead font-weight-bold text-danger">Atenção: ****Pagar taxa do exame****</p>
       {% else %}
