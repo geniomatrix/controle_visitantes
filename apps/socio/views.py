@@ -198,7 +198,7 @@ def detalhes_socio(request, socio_id):
     socio = get_object_or_404(Socio, pk=socio_id)
     data_atual = date.today()
     dois_meses = timedelta(days=60)
-
+    diferenca_dias = None  # Inicializando a variável
     dependente_form = DependenteForm()
 
     if request.method == 'POST':
@@ -223,7 +223,11 @@ def detalhes_socio(request, socio_id):
                 dependente.validade = dependente.data_nascimento + relativedelta(years=13) - timedelta(days=1)
 
             # Ajusta data de exame
-            if dependente.dtexame_ini:
+            
+            if dependente.dtexame_ini and dependente.dtexame_fin:
+                diferenca_dias = (dependente.dtexame_fin - dependente.dtexame_ini).days
+            elif dependente.dtexame_ini:
+                # Caso `dtexame_fin` não exista, define como `dtexame_ini + dois_meses`
                 dependente.dtexame_fin = dependente.dtexame_ini + dois_meses
 
             # Gera número do cartão
@@ -243,45 +247,55 @@ def detalhes_socio(request, socio_id):
     return render(request, 'detalhes_socio.html', {
         'socio': socio,
         'dependente_form': dependente_form,
-        'data_atual': data_atual
-    })
-def detalhes_dependente(request, dependente_id):
-     # Filtrar os dependentes ativos do sócio
-    dependente = get_object_or_404(Dependente, pk=dependente_id)
- 
+        'data_atual': data_atual,
 
- 
+
+    })
+
+def detalhes_dependente(request, dependente_id):
+    # Obter o dependente pelo ID
+    dependente = get_object_or_404(Dependente, pk=dependente_id)
     dependente_form = DependenteForm()
-    dois_meses = timedelta(days=60) #validade do exame medico
+    
+    dois_meses = timedelta(days=60)  # Validade do exame médico
+    diferenca_maior_que_60 = False  # Variável para armazenar o estado da diferença
+
+    if dependente.dtexame_ini and dependente.dtexame_fin:
+        # Calcular a diferença entre as datas
+        diferenca_dias = (dependente.dtexame_fin - dependente.dtexame_ini).days
+        diferenca_maior_que_60 = diferenca_dias > 60
+
     if request.method == 'POST':
         dependente_form = DependenteForm(request.POST)
-        if dependente_form.is_valid() :
+        if dependente_form.is_valid():
             dependente = dependente_form.save(commit=False)
-            dependente.socio = socio
-            #valida conforme filiação
+
+            # Validação conforme a filiação
             if dependente.filiacao == "FILHO(a)":
-                #qtd_anos = timedelta(days=365 * 26) - timedelta(days=1)
-                #dependente.validade = timezone.now().date() + qtd_anos
                 dependente.validade = dependente.data_nascimento + relativedelta(years=26) - timedelta(days=1)
             elif dependente.filiacao == "NETO(a)":
-                #qtd_anos = timedelta(days=365 * 13) - timedelta(days=1)
-                #dependente.validade = timezone.now().date() + qtd_anos
                 dependente.validade = dependente.data_nascimento + relativedelta(years=13) - timedelta(days=1)
+
+            # Atualizar a validade do exame médico
             dependente.dtexame_fin = timezone.now().date() + dois_meses
-            existe_registros = Dependentes.objects.exists()
-            if existe_registros:  
-                ultimo_registro = Dependentes.objects.latest('id')
-                proximo_registro = ultimo_registro.id + 1 
-                dependente.nrcart = "D"+str(proximo_registro)+str(socio_id)+socio.tpsocio
-                dependente.save()
+
+            # Gerar o número do cartão
+            existe_registros = Dependente.objects.exists()
+            if existe_registros:
+                ultimo_registro = Dependente.objects.latest('id')
+                proximo_registro = ultimo_registro.id + 1
             else:
-                dependente.nrcart = "D"+str(1)+str(socio_id)+socio.tpsocio
-                dependente.save()
+                proximo_registro = 1
 
-            return redirect('detalhes_dependente', dependente_id=dependente_id)
+            dependente.nrcart = f"D{proximo_registro}{socio_id}{socio.tpsocio}"
+            dependente.save()
+            return redirect('detalhes_dependente', dependente_id=dependente.id)
 
-    return render(request, 'detalhes_dependente.html', {'dependente': dependente, 'dependente_form': dependente_form})
-
+    return render(request, 'detalhes_dependente.html', {
+        'dependente': dependente,
+        'dependente_form': dependente_form,
+        'diferenca_maior_que_60': diferenca_maior_que_60,
+    })
 
 
 def buscar_socio(request):

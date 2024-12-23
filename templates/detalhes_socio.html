@@ -29,7 +29,7 @@
 <p>Telefone: {{ socio.telefone }}</p>
 <p>Tipo de Sócio: {{ socio.tpsocio }}</p>
 
-{% if socio.dtexame_fin < data_atual or not socio.dtexame_ini or not socio.dtexame_fin   %}
+{% if socio.dtexame_fin < data_atual or not socio.dtexame_ini or not socio.dtexame_fin or diferenca_dias > 60  %}
   <h3 class="m-0 font-weight-bold text-danger">Validade da taxa da piscina: {{ socio.dtexame_fin }} (Exame Vencido)</h3>
   <p class="lead font-weight-bold text-danger">Atenção: ****Pagar taxa do exame****</p>
 {% else %}
@@ -51,7 +51,7 @@
       <li>{{ dependente.nome }} - {{ dependente.data_nascimento }} - {{ dependente.filiacao }} - {{ dependente.validade }}</li>
       <h3 class="m-0 font-weight-bold text-info">Registro: {{ dependente.nrcart }}</h3>
       
-      {% if dependente.dtexame_fin < data_atualor or not dependente.dtexame_ini or not dependente.dtexame_fin   %}
+      {% if dependente.dtexame_fin < data_atual or dependente.dtexame_fin == None or diferenca_dias >= 60 %}
         <h3 class="m-0 font-weight-bold text-danger">Validade da taxa da piscina: {{ dependente.dtexame_fin }} (Exame Vencido)</h3>
         <p class="lead font-weight-bold text-danger">Atenção: ****Pagar taxa do exame****</p>
       {% else %}

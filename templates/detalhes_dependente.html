@@ -27,7 +27,7 @@
 <p>Telefone: {{ dependente.telefone }}</p>
 <p>Nome do Titular: {{ socio.nome }}</p>
 
-{% if dependente.dtexame_fin < data_atual or dependente.dtexame_ini == None or dependente.dtexame_fin == None %}
+{% if dependente.dtexame_fin < data_atual or dependente.dtexame_fin == None or diferenca_dias >= 60 %}
   <h3 class="m-0 font-weight-bold text-danger">Validade da taxa da piscina: {{ dependente.dtexame_fin }} (Exame Vencido)</h3>
   <p class="lead font-weight-bold text-danger">Atenção: ****Pagar taxa do exame****</p>
 
