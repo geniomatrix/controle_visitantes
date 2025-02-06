@@ -1,3 +1,4 @@
+{% load static %}
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -5,6 +6,8 @@
   
   <!-- Bootstrap CSS -->
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <!-- CSS Personalizado -->
+  <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
   <!-- Bootstrap JS e dependências -->
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
@@ -13,7 +16,7 @@
 
 <!-- Detalhes do Dependente -->
 {% if dependente.foto %}
-  <img src="{{ dependente.foto.url }}" alt="{{ dependente.nome }} - Foto">
+  <img src="{{ dependente.foto.url }}" alt="{{ dependente.nome }} - Foto" class="foto-cracha">
 {% else %}
   <p>Não há foto para este dependente.</p>
 {% endif %}

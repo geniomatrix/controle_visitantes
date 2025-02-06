@@ -212,14 +212,14 @@ def detalhes_socio(request, socio_id):
             if dependente.filiacao == "FILHO(a)" and idade > 22:
                 messages.error(request, "Dependente do tipo FILHO(a) deve ter até 22 anos.")
                 return redirect('detalhes_socio', socio_id=socio_id)
-            elif dependente.filiacao == "NETO(a)" and idade > 13:
-                messages.error(request, "Dependente do tipo NETO(a) deve ter até 13 anos.")
+            elif (dependente.filiacao == "NETO(a)" or dependente.filiacao == "BISNETO(a)")  and idade > 13:
+                messages.error(request, "Dependente do tipo NETO(a) ou BISNETO(a) deve ter até 13 anos.")
                 return redirect('detalhes_socio', socio_id=socio_id)
 
             # Define validade
             if dependente.filiacao == "FILHO(a)":
                 dependente.validade = dependente.data_nascimento + relativedelta(years=22) - timedelta(days=1)
-            elif dependente.filiacao == "NETO(a)":
+            elif dependente.filiacao == "NETO(a)" or dependente.filiacao == "BISNETO(a)":
                 dependente.validade = dependente.data_nascimento + relativedelta(years=13) - timedelta(days=1)
 
             # Ajusta data de exame
@@ -273,7 +273,7 @@ def detalhes_dependente(request, dependente_id):
             # Validação conforme a filiação
             if dependente.filiacao == "FILHO(a)":
                 dependente.validade = dependente.data_nascimento + relativedelta(years=26) - timedelta(days=1)
-            elif dependente.filiacao == "NETO(a)":
+            elif dependente.filiacao == "NETO(a)" or dependente.filiacao == "BISNETO(a)":
                 dependente.validade = dependente.data_nascimento + relativedelta(years=13) - timedelta(days=1)
 
             # Atualizar a validade do exame médico
@@ -387,7 +387,7 @@ def editar_socio(request, pk):
     
     socio = get_object_or_404(Socio, pk=pk)
     if request.method == 'POST':
-        form = SocioForm(request.POST, instance=socio)
+        form = SocioForm(request.POST, request.FILES, instance=socio)  # Adicionando request.FILES
         dois_meses = timedelta(days=60)  #validade do exame medico
         if form.is_valid():
             if socio.dtexame_ini:
@@ -414,7 +414,8 @@ def editar_dependente(request, pk):
     dependente = get_object_or_404(Dependentes, pk=pk)
     dois_meses = timedelta(days=60) #validade do exame medico
     if request.method == 'POST':
-        form = DependenteForm(request.POST, instance=dependente)
+        form = DependenteForm(request.POST, request.FILES,instance=dependente)
+        
         if form.is_valid():
            
            #valida conforme filiação
@@ -423,7 +424,7 @@ def editar_dependente(request, pk):
                 #qtd_anos = timedelta(days=365 * 26) - timedelta(days=1)
                 #dependente.validade = timezone.now().date() + qtd_anos
                 dependente.validade = dependente.data_nascimento + relativedelta(years=26) - timedelta(days=1)
-            elif dependente.filiacao == "NETO(a)":
+            elif dependente.filiacao == "NETO(a)" or dependente.filiacao == "BISNETO(a)":
                 #qtd_anos = timedelta(days=365 * 13) - - timedelta(days=1)
                 #dependente.validade = timezone.now().date() + qtd_anos
                 dependente.validade = dependente.data_nascimento + relativedelta(years=13) - timedelta(days=1)            

@@ -21,3 +21,11 @@
     padding: 10px;
     border-radius: 5px;
 }
+
+.foto-cracha {
+    width: 200px;   /* Largura do crachá */
+    height: 200px;  /* Altura do crachá */
+    object-fit: cover;  /* Garante que a imagem preencha sem distorcer */
+    border: 2px solid black; /* Opcional: Adiciona borda */
+    border-radius: 8px;  /* Opcional: Borda arredondada */
+}

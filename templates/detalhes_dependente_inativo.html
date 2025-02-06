@@ -1,5 +1,6 @@
+{% load static %}
 {% if dependente.foto %}
-  <img src="{{ dependente.foto.url }}" alt="{{ dependente.nome }} - Foto">
+  <img src="{{ dependente.foto.url }}" alt="{{ dependente.nome }} - Foto" class="foto-cracha">
 {% else %}
   <p>Não há foto para este sócio.</p>
 {% endif %}
