@@ -118,7 +118,7 @@
         <div class="info">
 
             <p style="text-transform: uppercase; color: blue;" ><strong>DEPENDENTE: {{ dependentes.nome }} - {{ dependentes.tpsocio }} - {{ dependentes.filiacao }} </strong> </p>
-            {% if dependentes.filiacao == "FILHO(a)" or dependentes.filiacao == "NETO(a)" %}
+            {% if dependentes.filiacao == "FILHO(a)" or dependentes.filiacao == "NETO(a)" or dependentes.filiacao == "BISNETO(a)" %}
                 <p><strong>Validade: {{ dependentes.validade }}</strong></p>
             {% endif %}    
             <p style="text-transform: uppercase;"><strong>TITULAR: {{ socio.nome }}</strong> </p>  

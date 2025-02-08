@@ -19,9 +19,28 @@ class SocioForm(forms.ModelForm):
         #self.fields['registro'].widget.attrs['disabled'] = True
  
 class DependenteForm(forms.ModelForm):
+    data_nascimento = forms.DateField(
+        input_formats=['%d/%m/%Y'],
+        widget=forms.DateInput(format='%d/%m/%Y', attrs={'class': 'form-control', 'placeholder': 'DD/MM/YYYY'})
+    )
+    dtexame_ini = forms.DateField(
+        input_formats=['%d/%m/%Y'],
+        widget=forms.DateInput(format='%d/%m/%Y', attrs={'class': 'form-control', 'placeholder': 'DD/MM/YYYY'})
+    )
+    dtexame_fin = forms.DateField(
+        required=False,  # Permitir que o campo fique em branco
+        input_formats=['%d/%m/%Y'],
+        widget=forms.DateInput(format='%d/%m/%Y', attrs={'class': 'form-control', 'placeholder': 'DD/MM/YYYY', 'disabled': True})
+    )
+    validade = forms.DateField(
+        required=False,  # Permitir que o campo fique em branco
+        input_formats=['%d/%m/%Y'],
+        widget=forms.DateInput(format='%d/%m/%Y', attrs={'class': 'form-control', 'placeholder': 'DD/MM/YYYY', 'disabled': True})
+    )
+
     class Meta:
         model = Dependentes
-        fields = ['nome','cpf', 'data_nascimento','filiacao','validade','dtexame_ini','dtexame_fin','foto','tpsocio','foto']
+        fields = ['nome', 'cpf', 'data_nascimento', 'filiacao', 'validade', 'dtexame_ini', 'dtexame_fin', 'foto', 'tpsocio']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -407,6 +407,7 @@ def editar_socio(request, pk):
 def excluir_socio(request, pk):
     socio = get_object_or_404(Socio, pk=pk)
     socio.delete()
+    messages.success(request, "Socio excluído com sucesso!")
     return redirect('lista_socios')
 
 def editar_dependente(request, pk):
@@ -444,6 +445,12 @@ def editar_dependente(request, pk):
     else:
         form = DependenteForm(instance=dependente)
     return render(request, 'editar_dependente.html', {'form': form})
+
+def excluir_dependente(request, pk):
+    dependente = get_object_or_404(Dependentes, pk=pk)
+    dependente.delete()
+    messages.success(request, "Dependente excluído com sucesso!")
+    return redirect('lista_socios')
 
 def editar_socio_foto(request, pk):
     
