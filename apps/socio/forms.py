@@ -24,6 +24,7 @@ class DependenteForm(forms.ModelForm):
         widget=forms.DateInput(format='%d/%m/%Y', attrs={'class': 'form-control', 'placeholder': 'DD/MM/YYYY'})
     )
     dtexame_ini = forms.DateField(
+        required=False,  # Permitir que o campo fique em branco
         input_formats=['%d/%m/%Y'],
         widget=forms.DateInput(format='%d/%m/%Y', attrs={'class': 'form-control', 'placeholder': 'DD/MM/YYYY'})
     )
