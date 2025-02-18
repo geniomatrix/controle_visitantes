@@ -23,75 +23,75 @@
             width: 50%; /* Defina a largura desejada da sua div */
             background-color: #f0f0f0; /* Apenas para melhor visualização */
         }
+
+        .foto-cracha {
+            max-width: 100%; /* Ajusta o tamanho da imagem de acordo com o container */
+            height: auto;    /* Mantém a proporção da imagem */
+        }
     </style>
      
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     
     <link href="{% static 'css/sb-admin-2.min.css' %}" rel="stylesheet">    
+      <!-- CSS Personalizado -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
     <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
 </head>
 
 <body class="bg-gradient-primary">
     <div class="container">
-           
         <div class="row justify-content-center">
-            
             <div class="col-xl-10 col-lg-12 col-md-9">
                 <div class="card o-hidden border-0 shadow-lg my-5 centro">
                     <div class="card-body p-0">
-                        <div class="row">
-                            
-                            <div class="col-lg-6 d-none d-lg-block ">
-                                <img src={% static "images/logoccs.png"%} alt="Clube"> 
+                        <div class="row justify-content-center">
+                            <!-- Centraliza a imagem do logo -->
+                            <div class="col-12 text-center">
+                                <img src="{% static 'images/logoccs.png' %}" alt="Clube" class="foto-cracha">
                             </div>
-                            <div class="card-body">
-                                <h4 class="mb-3 text-primary">
-                                    Controle de Sócios - Aproxime a carteirinha do leitor de código de barras
-                                </h4>
-                                <p class="card shadow mb-4 text-danger">
-                                    <small>
-                                        *Entrada permitida somente de sócios
-                                    </small>        
-                                </p>   
-                                
-                                {% if form.errors %}
-                                    {% for field in form %}
-                                        {% if field.errors %}
-                                            {% for erro in field.errors %}
-                                                <div class="alert alert-warning" role="alert"> 
-                                                    {{ erro }}
-                                                </div>
-                                            {% endfor %}        
-                                        {% endif %}
-                                    {% endfor %}
-                    
-                                {% endif %}
-                                            
-                                    <form method="post" action="{% url 'buscar_socio' %}">
-                                        {% csrf_token %}
-                                        {{ form }}
-                                        <button type="submit">Buscar</button>
-                    
-                                    </form>
-                                    <script>
-                                        // Define o foco para o campo1 após a página ser carregada
-                                        document.addEventListener("DOMContentLoaded", function() {
-                                            document.getElementById("id_nrcart").focus();
-                                        });
-                                         // Limpa o valor do campo quando a página é carregada
-                                        window.onload = function() {
-                                            document.getElementById("id_nrcart").value = "";
-                                        };
-                                    </script>    
-                                                                
-                            </div>
- 
+                        </div>
+                        <div class="card-body">
+                            <h4 class="mb-3 text-primary">
+                                Controle de Sócios - Aproxime a carteirinha do leitor de código de barras
+                            </h4>
+                            <p class="card shadow mb-4 text-danger">
+                                <small>
+                                    *Entrada permitida somente de sócios
+                                </small>        
+                            </p>   
+
+                            {% if form.errors %}
+                                {% for field in form %}
+                                    {% if field.errors %}
+                                        {% for erro in field.errors %}
+                                            <div class="alert alert-warning" role="alert"> 
+                                                {{ erro }}
+                                            </div>
+                                        {% endfor %}        
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+
+                            <form method="post" action="{% url 'buscar_socio' %}">
+                                {% csrf_token %}
+                                {{ form }}
+                                <button type="submit">Buscar</button>
+                            </form>
+
+                            <script>
+                                // Define o foco para o campo1 após a página ser carregada
+                                document.addEventListener("DOMContentLoaded", function() {
+                                    document.getElementById("id_nrcart").focus();
+                                });
+                                 // Limpa o valor do campo quando a página é carregada
+                                window.onload = function() {
+                                    document.getElementById("id_nrcart").value = "";
+                                };
+                            </script>    
                         </div>
                     </div>
                 </div>
-                
             </div>
-            
         </div>
     </div>
     <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
@@ -99,7 +99,3 @@
     <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
 </body>
 </html>
-
-
-
-

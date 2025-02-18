@@ -30,7 +30,7 @@
 <p>Data de Nascimento: {{ socio.data_nascimento }}</p>
 <p>Telefone: {{ socio.telefone }}</p>
 <p>Tipo de Sócio: {{ socio.tpsocio }}</p>
-{% if socio.dtexame_fin < data_atual or not socio.dtexame_ini or not socio.dtexame_fin or diferenca_dias > 60   %}
+{% if socio.dtexame_fin < data_atual   %}
   <h3 class="m-0 font-weight-bold text-danger">Validade da taxa da piscina: {{ socio.dtexame_fin }} (Exame Vencido)</h3>
   <p class="lead font-weight-bold text-danger">Atenção: ****Pagar taxa do exame****</p>
 
