@@ -54,28 +54,38 @@
     <tr>
       <th>Nome</th>
       <th>Data de Nascimento</th>
+      <th>Idade</th>
       <th>Filiação</th>
       <th>Validade</th>
+      <th>Situação</th>
       <th>Ações</th>
     </tr>
   </thead>
   <tbody>
-    {% for dependente in socio.dependentes.all %}
-      {% if dependente.ativo == 'Sim' or dependente.ativo == 'S' or dependente.ativo == '' %}
-        <tr>
-          <td>{{ dependente.nome }}</td>
-          <td>{{ dependente.data_nascimento }}</td>
-          <td>{{ dependente.filiacao }}</td>
-          <td>{{ dependente.validade }}</td>
-          <td>
-            <a href="{% url 'editar_dependente' dependente.id %}" class="btn btn-primary">Editar</a>
-            <a href="{% url 'excluir_dependente' dependente.id %}" class="btn btn-danger">Excluir</a>
-          </td>
-        </tr>
-      {% endif %}
+    {% for dependente in dependentes %}
+      <tr>
+        <td>{{ dependente.nome }}</td>
+        <td>{{ dependente.data_nascimento }}</td>
+        <td>{{ dependente.idade }}</td>
+        <td>{{ dependente.filiacao }}</td>
+        <td>{{ dependente.validade }}</td>
+        <td>
+          {% if dependente.titulo_vencido %}
+            <span class="text-danger font-weight-bold">Título Vencido</span>
+          {% else %}
+            <span class="text-success">Válido</span>
+          {% endif %}
+        </td>
+        <td>
+          <a href="{% url 'editar_dependente' dependente.id %}" class="btn btn-primary">Editar</a>
+          <a href="{% url 'excluir_dependente' dependente.id %}" class="btn btn-danger">Excluir</a>
+        </td>
+      </tr>
     {% endfor %}
   </tbody>
 </table>
+
+
 
 <div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
   <h3 class="m-0 font-weight-bold text-primary">Adicionar dependente:</h3>

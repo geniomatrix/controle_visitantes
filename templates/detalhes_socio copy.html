@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block conteudo %}
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert 
+        {% if message.tags == 'success' %}alert-success
+        {% elif message.tags == 'error' %}alert-danger
+        {% elif message.tags == 'warning' %}alert-warning
+        {% else %}alert-info{% endif %}" role="alert">
+      {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+{% if socio.foto %}
+  <img src="{{ socio.foto.url }}" alt="{{ socio.nome }} - Foto" class="foto-cracha">
+{% else %}
+  <p>Não há foto para este sócio.</p>
+{% endif %}
+<div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
+  <h2 class="m-0 font-weight-bold text-primary">Detalhes do Sócio Titular: {{ socio.nome }}</h2>
+</div>
+
+<div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
+  <h3 class="m-0 font-weight-bold text-info">Registro: {{ socio.nrcart }}</h3>
+</div>
+<p>Email: {{ socio.email }}</p>
+<p>Data de Nascimento: {{ socio.data_nascimento }}</p>
+<p>Telefone: {{ socio.telefone }}</p>
+<p>Tipo de Sócio: {{ socio.tpsocio }}</p>
+
+
+{% comment %}
+  {% if socio.dtexame_fin < data_atual or not socio.dtexame_ini or not socio.dtexame_fin or diferenca_dias > 60  %}
+{% endcomment %}
+{% if socio.dtexame_fin < data_atual  %}
+  <h3 class="m-0 font-weight-bold text-danger">Validade da taxa da piscina: {{ socio.dtexame_fin }} (Exame Vencido)</h3>
+  <p class="lead font-weight-bold text-danger">Atenção: ****Pagar taxa do exame****</p>
+{% else %}
+  <h3 class="m-0 font-weight-bold text-success">Validade da taxa da piscina: {{ socio.dtexame_fin }}</h3>
+{% endif %}
+
+{% if socio.ativo == "S" or socio.ativo == "Sim" or socio.ativo == "" %}
+  <h3 class="m-0 font-weight-bold text-info">Situação: Titulo Ativo</h3>
+{% else %}
+  <h3 class="m-0 font-weight-bold text-danger">Situação: Titulo Encerrado</h3>
+{% endif %}
+
+<div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
+  <h2 class="m-0 font-weight-bold text-primary">Dependentes</h2>
+</div>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Data de Nascimento</th>
+      <th>Filiação</th>
+      <th>Validade</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for dependente in socio.dependentes.all %}
+      {% if dependente.ativo == 'Sim' or dependente.ativo == 'S' or dependente.ativo == '' %}
+        <tr>
+          <td>{{ dependente.nome }}</td>
+          <td>{{ dependente.data_nascimento }}</td>
+          <td>{{ dependente.filiacao }}</td>
+          <td>{{ dependente.validade }}</td>
+          <td>
+            <a href="{% url 'editar_dependente' dependente.id %}" class="btn btn-primary">Editar</a>
+            <a href="{% url 'excluir_dependente' dependente.id %}" class="btn btn-danger">Excluir</a>
+          </td>
+        </tr>
+      {% endif %}
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
+  <h3 class="m-0 font-weight-bold text-primary">Adicionar dependente:</h3>
+</div>
+<form method="post" action="" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ dependente_form.as_p }}
+  <button type="submit" class="btn btn-success">Adicionar Dependente</button>
+</form>
+{% endblock conteudo %}

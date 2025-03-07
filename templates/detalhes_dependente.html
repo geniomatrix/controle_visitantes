@@ -63,6 +63,12 @@
   <h3 class="m-0 font-weight-bold text-success">Validade da taxa da piscina: {{ dependente.dtexame_fin }}</h3>
 {% endif %}
 
+{% if titulo_vencido %}
+    <div class="alert alert-danger">
+        <strong>Atenção!</strong> O dependente excedeu a idade permitida para esta categoria e não pode entrar.
+    </div>
+{% endif %}
+
 {% if dependente.ativo == "S" or dependente.ativo == "Sim" or dependente.ativo == "" %}
   <h3 class="m-0 font-weight-bold text-info">Situação: Título Ativo</h3>
 {% else %}

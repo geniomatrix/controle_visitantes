@@ -24,4 +24,6 @@ urlpatterns = [
     path('excluir_dependente/<int:pk>/', views.excluir_dependente, name='excluir_dependente'),
     path('pagar_taxasocio/<int:pk>/', views.pagar_taxasocio, name='pagar_taxasocio'),
     path('pagar_taxadep/<int:pk>/', views.pagar_taxadep, name='pagar_taxadep'),
+    path('relatorio/', views.relatorio_socios, name='relatorio_socios'),
+    path('exportar_excel/', views.exportar_excel, name='exportar_excel'),
 ]

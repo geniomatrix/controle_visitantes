@@ -257,7 +257,7 @@ def detalhes_socio(request, socio_id):
 
 def detalhes_dependente(request, dependente_id):
     # Obter o dependente pelo ID
-    dependente = get_object_or_404(Dependente, pk=dependente_id)
+    dependente = get_object_or_404(Dependentes, pk=dependente_id)
     dependente_form = DependenteForm()
     
     dois_meses = timedelta(days=60)  # Validade do exame médico
@@ -283,9 +283,9 @@ def detalhes_dependente(request, dependente_id):
             dependente.dtexame_fin = timezone.now().date() + dois_meses
 
             # Gerar o número do cartão
-            existe_registros = Dependente.objects.exists()
+            existe_registros = Dependentes.objects.exists()
             if existe_registros:
-                ultimo_registro = Dependente.objects.latest('id')
+                ultimo_registro = Dependentes.objects.latest('id')
                 proximo_registro = ultimo_registro.id + 1
             else:
                 proximo_registro = 1

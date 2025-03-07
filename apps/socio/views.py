@@ -10,7 +10,7 @@ import qrcode
 from io import BytesIO
 from django.core.files import File
 import base64
-from django.http import HttpResponseRedirect,JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect,JsonResponse
 import cv2
 import numpy as np
 from dateutil.relativedelta import relativedelta
@@ -18,6 +18,10 @@ from django.db.models import Q  # Importa Q para a query com OR
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils.timezone import now
+import openpyxl
+import pandas as pd
+
+
 
 
 def is_porteiro(user):
@@ -194,153 +198,178 @@ def lista_dependentes_altera(request):
     context = {'dependentes': dependentes, 'form': form}
     return render(request, 'lista_dependentes_altera.html', context)
 
+def calcular_idade(data_nascimento):
+    """Calcula a idade com base na data de nascimento."""
+    hoje = date.today()
+    return hoje.year - data_nascimento.year - ((hoje.month, hoje.day) < (data_nascimento.month, data_nascimento.day))
+
+
 def detalhes_socio(request, socio_id):
-    socio = get_object_or_404(Socio, pk=socio_id)
-    data_atual = date.today()
-    dois_meses = timedelta(days=60)
-    diferenca_dias = None  # Inicializando a variável
-    dependente_form = DependenteForm()
+    socio = Socio.objects.get(id=socio_id)
 
-    if request.method == 'POST':
-        dependente_form = DependenteForm(request.POST, request.FILES)
-        if dependente_form.is_valid():
-            dependente = dependente_form.save(commit=False)
-            dependente.socio = socio
+    # Criar uma lista para os dependentes com a verificação da idade
+    dependentes = []
+    for dependente in socio.dependentes.all():
+        idade = calcular_idade(dependente.data_nascimento)
+        titulo_vencido = (dependente.filiacao == "FILHO(a)" and idade >= 22) or (dependente.filiacao in ["NETO(a)", "BISNETO(a)"] and idade >= 13)
 
-            # Validação conforme filiação
-            idade = relativedelta(data_atual, dependente.data_nascimento).years
-            if dependente.filiacao == "FILHO(a)" and idade > 22:
-                messages.error(request, "Dependente do tipo FILHO(a) deve ter até 22 anos.")
-                return redirect('detalhes_socio', socio_id=socio_id)
-            elif (dependente.filiacao == "NETO(a)" or dependente.filiacao == "BISNETO(a)")  and idade > 13:
-                messages.error(request, "Dependente do tipo NETO(a) ou BISNETO(a) deve ter até 13 anos.")
-                return redirect('detalhes_socio', socio_id=socio_id)
-
-            # Define validade
-            if dependente.filiacao == "FILHO(a)":
-                dependente.validade = dependente.data_nascimento + relativedelta(years=22) - timedelta(days=1)
-            elif dependente.filiacao == "NETO(a)" or dependente.filiacao == "BISNETO(a)":
-                dependente.validade = dependente.data_nascimento + relativedelta(years=13) - timedelta(days=1)
-
-            # Ajusta data de exame
-            
-            if dependente.dtexame_ini and dependente.dtexame_fin:
-                diferenca_dias = (dependente.dtexame_fin - dependente.dtexame_ini).days
-            elif dependente.dtexame_ini:
-                # Caso `dtexame_fin` não exista, define como `dtexame_ini + dois_meses`
-                dependente.dtexame_fin = dependente.dtexame_ini + dois_meses
-            elif dependente.dtexame_fin:
-                # Caso `dtexame_ini` esteja vazio, considerar apenas `dtexame_fin`
-                diferenca_dias = 0  # Ou outro valor adequado
-
-            # Gera número do cartão
-            ultimo_registro = Dependentes.objects.last()
-            proximo_id = (ultimo_registro.id + 1) if ultimo_registro else 1
-            dependente.nrcart = f"D{proximo_id}{socio_id}{socio.tpsocio}"
-
-            try:
-                dependente.save()
-                messages.success(request, "Dependente registrado com sucesso!")
-            except Exception as e:
-                messages.error(request, f"Erro ao salvar o dependente: {str(e)}")
-                return redirect('detalhes_socio', socio_id=socio_id)
-
-            return redirect('detalhes_socio', socio_id=socio_id)
+        dependentes.append({
+            'nome': dependente.nome,
+            'data_nascimento': dependente.data_nascimento,
+            'idade': idade,
+            'filiacao': dependente.filiacao,
+            'validade': dependente.validade,
+            'titulo_vencido': titulo_vencido,
+            'id': dependente.id
+        })
 
     return render(request, 'detalhes_socio.html', {
         'socio': socio,
-        'dependente_form': dependente_form,
-        'data_atual': data_atual,
-
-
+        'dependentes': dependentes,  # Passamos a lista de dependentes processada
+        'data_atual': date.today(),
     })
 
 def detalhes_dependente(request, dependente_id):
-    # Obter o dependente pelo ID
     dependente = get_object_or_404(Dependentes, pk=dependente_id)
-    dependente_form = DependenteForm()
-    
-    dois_meses = timedelta(days=60)  # Validade do exame médico
-    diferenca_maior_que_60 = False  # Variável para armazenar o estado da diferença
+    dependente_form = DependenteForm(instance=dependente)
+    dois_meses = timedelta(days=60)
+    diferenca_maior_que_60 = False
+    titulo_vencido = False  # Inicializando a variável
 
+    # Verifica a validade do exame médico
     if dependente.dtexame_ini and dependente.dtexame_fin:
-        # Calcular a diferença entre as datas
         diferenca_dias = (dependente.dtexame_fin - dependente.dtexame_ini).days
         diferenca_maior_que_60 = diferenca_dias > 60
 
+    # Calcula a data de validade com base na filiação
+    if dependente.filiacao == "FILHO(a)":
+        dependente.validade = dependente.data_nascimento + relativedelta(years=22) - timedelta(days=1)
+    elif dependente.filiacao in ["NETO(a)", "BISNETO(a)"]:
+        dependente.validade = dependente.data_nascimento + relativedelta(years=13) - timedelta(days=1)
+
+    # Calculando a idade do dependente
+    today = date.today()
+    idade_dependente = today.year - dependente.data_nascimento.year - ((today.month, today.day) < (dependente.data_nascimento.month, dependente.data_nascimento.day))
+
+    # Verificação se o título está vencido
+    if dependente.filiacao == "FILHO(a)" and idade_dependente > 22:
+        titulo_vencido = True
+    elif dependente.filiacao in ["NETO(a)", "BISNETO(a)"] and idade_dependente > 13:
+        titulo_vencido = True
+    else:
+        titulo_vencido = False
+
+    # Processamento do formulário no POST
     if request.method == 'POST':
-        dependente_form = DependenteForm(request.POST)
+        dependente_form = DependenteForm(request.POST, instance=dependente)
         if dependente_form.is_valid():
             dependente = dependente_form.save(commit=False)
-
-            # Validação conforme a filiação
-            if dependente.filiacao == "FILHO(a)":
-                dependente.validade = dependente.data_nascimento + relativedelta(years=26) - timedelta(days=1)
-            elif dependente.filiacao == "NETO(a)" or dependente.filiacao == "BISNETO(a)":
-                dependente.validade = dependente.data_nascimento + relativedelta(years=13) - timedelta(days=1)
 
             # Atualizar a validade do exame médico
             dependente.dtexame_fin = timezone.now().date() + dois_meses
 
-            # Gerar o número do cartão
-            existe_registros = Dependentes.objects.exists()
-            if existe_registros:
-                ultimo_registro = Dependentes.objects.latest('id')
-                proximo_registro = ultimo_registro.id + 1
-            else:
-                proximo_registro = 1
+            # Gerar número do cartão
+            ultimo_id = Dependentes.objects.aggregate(models.Max('id'))['id__max'] or 0
+            dependente.nrcart = f"D{ultimo_id + 1}{dependente.socio.id}{dependente.socio.tpsocio}"
 
-            dependente.nrcart = f"D{proximo_registro}{socio_id}{socio.tpsocio}"
             dependente.save()
+            messages.success(request, "Dependente atualizado com sucesso!")
             return redirect('detalhes_dependente', dependente_id=dependente.id)
 
     return render(request, 'detalhes_dependente.html', {
         'dependente': dependente,
         'dependente_form': dependente_form,
         'diferenca_maior_que_60': diferenca_maior_que_60,
+        'titulo_vencido': titulo_vencido,  # Passa a variável para o template
     })
 
 
+
 def buscar_socio(request):
-    
     socio_id = None
     data_atual = date.today()  # Data atual
+    titulo_vencido = False  # Inicializando a variável
+
     if request.method == 'POST':
         form = BuscaSocioForm(request.POST)
+
         if form.is_valid():
-            #socio_id = form.cleaned_data['socio_id']
             nrcart = form.cleaned_data['nrcart']
-            
+
             try:
-                #socio = Socio.objects.get(pk=socio_id)
                 socio = Socio.objects.get(nrcart=nrcart)
                 socio_id = socio.id
-                #verifica se o sócio esta ativo
                 socio_ativo = verificar_socio_ativo(socio_id)
+
                 if socio_ativo != 'N':
-                    return render(request, 'detalhes_sociocart.html', {'socio': socio, 'socio_id': socio_id, 'data_atual': data_atual})
+                    return render(request, 'detalhes_sociocart.html', {
+                        'socio': socio,
+                        'socio_id': socio_id,
+                        'data_atual': data_atual
+                    })
                 else:
-                    return render(request, 'detalhes_sociocart_inativo.html', {'socio': socio, 'socio_id': socio_id, 'data_atual': data_atual})    
-                #return redirect('detalhes_socio', socio_id=socio_id)
+                    return render(request, 'detalhes_sociocart_inativo.html', {
+                        'socio': socio,
+                        'socio_id': socio_id,
+                        'data_atual': data_atual
+                    })
+
             except Socio.DoesNotExist:
                 try:
                     dependente = Dependentes.objects.get(nrcart=nrcart)
                     socio = dependente.socio
                     dependente_id = dependente.id
                     dependente_ativo = verificar_dependente_ativo(dependente_id)
-                    if dependente_ativo != 'N':
-                        return render(request, 'detalhes_dependente.html', {'dependente': dependente, 'socio': socio, 'socio_id': socio_id,'data_atual': data_atual})
+
+                    # Calculando a idade do dependente
+                    today = date.today()
+                    idade_dependente = today.year - dependente.data_nascimento.year - \
+                                       ((today.month, today.day) < (dependente.data_nascimento.month, dependente.data_nascimento.day))
+
+                    # Definindo a validade do dependente
+                    if dependente.filiacao == "FILHO(a)":
+                        validade = dependente.data_nascimento + relativedelta(years=22) - timedelta(days=1)
+                        titulo_vencido = today > validade
+                    elif dependente.filiacao in ["NETO(a)", "BISNETO(a)"]:
+                        validade = dependente.data_nascimento + relativedelta(years=13) - timedelta(days=1)
+                        titulo_vencido = today > validade
                     else:
-                        return render(request, 'detalhes_dependente_inativo.html', {'dependente': dependente, 'socio': socio, 'socio_id': socio_id,'data_atual': data_atual})    
+                        validade = None  # Outros tipos de dependentes sem restrição de idade
+
+                    dependente.validade = validade
+
+                    if dependente_ativo != 'N':
+                        return render(request, 'detalhes_dependente.html', {
+                            'dependente': dependente,
+                            'socio': socio,
+                            'socio_id': socio_id,
+                            'data_atual': data_atual,
+                            'titulo_vencido': titulo_vencido
+                        })
+                    else:
+                        return render(request, 'detalhes_dependente_inativo.html', {
+                            'dependente': dependente,
+                            'socio': socio,
+                            'socio_id': socio_id,
+                            'data_atual': data_atual,
+                            'titulo_vencido': titulo_vencido
+                        })
 
                 except Dependentes.DoesNotExist:
-                    mensagem = 'Sócio e dependente não encontrado.'.format(nrcart)
-                    return render(request, 'registrone.html', {'mensagem': mensagem, 'form': form})
+                    mensagem = 'Sócio e dependente não encontrado.'
+                    return render(request, 'registrone.html', {
+                        'mensagem': mensagem,
+                        'form': form
+                    })
+
     else:
         form = BuscaSocioForm()
 
-    return render(request, 'buscar_socio_acesso.html', {'form': form, 'data_atual': data_atual})
-
+    return render(request, 'buscar_socio_acesso.html', {
+        'form': form,
+        'data_atual': data_atual,
+        'titulo_vencido': titulo_vencido
+    })
 def search_socio(request):
     form = SocioSearchForm(request.GET)
     results = []
@@ -522,6 +551,7 @@ def verificar_socio_ativo(socio_id):
     except Socio.DoesNotExist:
         return False
 
+
 def verificar_dependente_ativo(socio_id):
     try:
         dependentes = Dependentes.objects.get(id=socio_id)
@@ -561,3 +591,65 @@ def pagar_taxadep(request, pk):
     # Redirecione para a página de detalhes do dependente
     return redirect('buscar_socio')
   
+def relatorio_socios(request):
+    tipo = request.GET.get('tipo', 'socio')
+    filtro = request.GET.get('filtro', '').strip()
+    filiacao = request.GET.get('filiacao', '').strip()  # Captura o filiacao selecionado
+
+    # Filtrando sócios ou dependentes dependendo do tipo selecionado
+    if tipo == 'socio':
+        queryset = Socio.objects.all()
+    else:
+        queryset = Dependentes.objects.all()
+
+    # Aplicando o filtro de nome ou número da carteira
+    if filtro:
+        queryset = queryset.filter(
+            Q(nome__icontains=filtro) | Q(nrcart__icontains=filtro)
+        )
+
+    # Aplicando filtro de filiacao (se for dependente e filiacao for escolhido)
+    if tipo == 'dependente' and filiacao:
+        queryset = queryset.filter(filiacao__icontains=filiacao)
+
+    # Paginação
+    paginator = Paginator(queryset, 10)  # 10 itens por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'relatorio_socios.html', {
+        'tipo': tipo,
+        'filtro': filtro,
+        'filiacao': filiacao,
+        'page_obj': page_obj,
+    })
+
+def exportar_excel(request):
+    tipo = request.GET.get('tipo', '')  # Filtrar pelo tipo de sócio
+    buscar = request.GET.get('filtro', '')  # Agora usa 'filtro' como no HTML
+    filiacao = request.GET.get('filiacao', '')  # Filtrar por filiação, se aplicável
+
+    # Obtendo os dados do modelo
+    queryset = Socio.objects.all()
+
+    # Filtro por tipo de sócio
+    if tipo:
+        queryset = queryset.filter(tpsocio=tipo)
+
+    # Filtro de busca (pesquisa por nome ou número do cartão)
+    if buscar:
+        queryset = queryset.filter(Q(nome__icontains=buscar) | Q(nrcart__icontains=buscar))
+
+    # Filtro por filiação (Ajuste conforme o seu modelo)
+    if filiacao:
+        queryset = queryset.filter(filiacao__icontains=filiacao)  # Verifique se esse campo existe no modelo
+
+    # Criando DataFrame com os campos necessários
+    df = pd.DataFrame(list(queryset.values("nrcart", "nome", "data_nascimento", "ativo", "tpsocio")))
+
+    # Criando resposta HTTP para exportação do arquivo
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="relatorio_socios.xlsx"'
+
+    df.to_excel(response, index=False, engine='openpyxl')
+    return response

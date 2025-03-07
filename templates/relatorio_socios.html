@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block conteudo %}
+<div class="container mt-4">
+    <h2 class="text-primary">Relatório de Sócios e Dependentes</h2>
+
+    <!-- Filtros -->
+    <form method="get" action="{% url 'relatorio_socios' %}">
+        <div class="row">
+            <div class="col-md-4">
+                <label for="tipo">Tipo:</label>
+                <select name="tipo" id="tipo" class="form-control">
+                    <option value="socio" {% if tipo == "socio" %}selected{% endif %}>Sócio</option>
+                    <option value="dependente" {% if tipo == "dependente" %}selected{% endif %}>Dependente</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="filtro">Buscar:</label>
+                <input type="text" name="filtro" id="filtro" class="form-control" placeholder="Nome ou Número da Carteira" value="{{ filtro }}">
+            </div>
+            <div class="col-md-4">
+                <label for="filiacao">Dependente:</label>
+                <select name="filiacao" id="filiacao" class="form-control" {% if tipo == "socio" %}disabled{% endif %}>
+                    <option value="" {% if filiacao == "" %}selected{% endif %}>Todos</option>
+                    <option value="esposa" {% if filiacao == "esposa" %}selected{% endif %}>Esposa</option>
+                    <option value="filho" {% if filiacao == "filho" %}selected{% endif %}>Filho</option>
+                    <option value="pai" {% if filiacao == "pai" %}selected{% endif %}>Pai</option>
+                    <option value="neto" {% if filiacao == "neto" %}selected{% endif %}>Neto</option>
+                    <option value="bisneto" {% if filiacao == "bisneto" %}selected{% endif %}>Bisneto</option>
+                </select>
+            </div>
+            <br><br><br><br>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-search"></i> Buscar
+                </button>
+            </div>
+        </div>
+    </form>
+    <hr>
+
+    <!-- Botões: Imprimir e Exportar -->
+    <div class="mb-4">
+        <button onclick="imprimirRelatorio()" class="btn btn-success">
+            <i class="fa fa-print"></i> Imprimir
+        </button>
+  {% comment %}
+          <a id="exportar-excel" href="#" class="btn btn-success">
+              <i class="fa fa-file-excel"></i> Exportar para Excel
+          </a>
+  {% endcomment %}
+    </div>
+    
+    <!-- Tabela -->
+    <div class="relatorio-print">
+        {% if tipo == "socio" %}
+            <h3>Relatório de Sócios</h3>
+        {% elif tipo == "dependente" %}
+            <h3>Relatório de Dependentes</h3>
+        {% endif %}
+        
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nº Carteira</th>
+                    <th>Nome</th>
+                    {% if tipo == "dependente" %}
+                        <th>Parentesco</th>
+                    {% endif %}
+                    <th>Data de Nascimento</th>
+                    <th>Ativo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in page_obj %}
+                    <tr>
+                        <td>{{ item.nrcart }}</td>
+                        <td>{{ item.nome }}</td>
+                        {% if tipo == "dependente" %}
+                            <td>{{ item.filiacao }}</td>
+                        {% endif %}
+                        <td>{{ item.data_nascimento }}</td>
+                        <td class="{% if item.Ativo == 'Inativo' %}text-danger{% endif %}">
+                            {{ item.Ativo }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Paginação -->
+        {% if page_obj.paginator.num_pages > 1 %}
+            <nav>
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?tipo={{ tipo }}&filtro={{ filtro }}&page=1">&laquo; Primeira</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?tipo={{ tipo }}&filtro={{ filtro }}&page={{ page_obj.previous_page_number }}">Anterior</a>
+                        </li>
+                    {% endif %}
+
+                    <li class="page-item disabled">
+                        <span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?tipo={{ tipo }}&filtro={{ filtro }}&page={{ page_obj.next_page_number }}">Próxima</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?tipo={{ tipo }}&filtro={{ filtro }}&page={{ page_obj.paginator.num_pages }}">Última &raquo;</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    </div>
+
+</div>
+
+<script>
+    function imprimirRelatorio() {
+        window.print();
+    }
+</script>
+
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        .relatorio-print, .relatorio-print * {
+            visibility: visible;
+        }
+        .relatorio-print {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var tipoSelect = document.getElementById("tipo");
+        var filiacaoSelect = document.getElementById("filiacao");
+
+        function togglefiliacao() {
+            if (tipoSelect.value === "socio") {
+                filiacaoSelect.disabled = true;
+                filiacaoSelect.value = "";
+            } else {
+                filiacaoSelect.disabled = false;
+            }
+        }
+
+        tipoSelect.addEventListener("change", togglefiliacao);
+        togglefiliacao();  // Ajusta a seleção ao carregar a página
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var tipo = "{{ tipo|escapejs }}"; // Garante que caracteres especiais sejam tratados
+        var filtro = "{{ filtro|escapejs }}"; // Escapa caracteres como aspas e barras
+        var filiacao = "{{ filiacao|escapejs }}"; // Escapa caracteres como aspas e barras
+
+        // Codifica para evitar problemas com espaços e caracteres especiais
+        var tipoEncoded = encodeURIComponent(tipo);
+        var filtroEncoded = encodeURIComponent(filtro);
+        var filiacaoEncoded = encodeURIComponent(filiacao);
+
+        // Atualiza o href do link exportar-excel com os filtros
+        document.getElementById("exportar-excel").href = `{% url 'exportar_excel' %}?tipo=${tipoEncoded}&filtro=${filtroEncoded}&filiacao=${filiacaoEncoded}`;
+    });
+</script>
+
+{% endblock conteudo %}
