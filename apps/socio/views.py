@@ -200,34 +200,61 @@ def lista_dependentes_altera(request):
 
 def calcular_idade(data_nascimento):
     """Calcula a idade com base na data de nascimento."""
+    if data_nascimento is None:
+        return None  # Ou outra mensagem padrão, como "Idade não disponível"
+    
     hoje = date.today()
     return hoje.year - data_nascimento.year - ((hoje.month, hoje.day) < (data_nascimento.month, data_nascimento.day))
 
-
 def detalhes_socio(request, socio_id):
-    socio = Socio.objects.get(id=socio_id)
+    socio = get_object_or_404(Socio, pk=socio_id)
+    dependentes = Dependentes.objects.filter(socio=socio)  
+    data_atual = date.today()
 
-    # Criar uma lista para os dependentes com a verificação da idade
-    dependentes = []
-    for dependente in socio.dependentes.all():
-        idade = calcular_idade(dependente.data_nascimento)
-        titulo_vencido = (dependente.filiacao == "FILHO(a)" and idade >= 22) or (dependente.filiacao in ["NETO(a)", "BISNETO(a)"] and idade >= 13)
+    # Atualizar a validade e o status do título vencido
+    for dependente in dependentes:
+        if dependente.data_nascimento:  # Verifica se a data de nascimento não é None
+            idade = data_atual.year - dependente.data_nascimento.year - (
+                (data_atual.month, data_atual.day) < (dependente.data_nascimento.month, dependente.data_nascimento.day)
+            )
 
-        dependentes.append({
-            'nome': dependente.nome,
-            'data_nascimento': dependente.data_nascimento,
-            'idade': idade,
-            'filiacao': dependente.filiacao,
-            'validade': dependente.validade,
-            'titulo_vencido': titulo_vencido,
-            'id': dependente.id
-        })
+            if dependente.filiacao == "FILHO(a)":
+                validade = dependente.data_nascimento + relativedelta(years=22) - relativedelta(days=1)
+                dependente.titulo_vencido = idade > 22
+                dependente.idade = idade  # Adiciona idade ao objeto
+            elif dependente.filiacao in ["NETO(a)", "BISNETO(a)"]:
+                validade = dependente.data_nascimento + relativedelta(years=13) - relativedelta(days=1)
+                dependente.titulo_vencido = idade > 13
+                dependente.idade = idade  # Adiciona idade ao objeto
+            else:
+                validade = "Não se aplica"
+                dependente.titulo_vencido = False  
+                dependente.idade = idade  # Adiciona idade ao objeto
+            
+            dependente.validade = validade
+        else:
+            dependente.validade = "Não informada"  # Evita erro e permite exibição correta
+            dependente.titulo_vencido = False  # Evita lógica de expiração errada
 
-    return render(request, 'detalhes_socio.html', {
+    # Formulário para adicionar dependente
+    if request.method == "POST":
+        dependente_form = DependenteForm(request.POST)
+        if dependente_form.is_valid():
+            novo_dependente = dependente_form.save(commit=False)
+            novo_dependente.socio = socio  # Associa o dependente ao sócio
+            novo_dependente.save()
+            return redirect('detalhes_socio', socio_id=socio.id)
+    else:
+        dependente_form = DependenteForm()
+
+    context = {
         'socio': socio,
-        'dependentes': dependentes,  # Passamos a lista de dependentes processada
-        'data_atual': date.today(),
-    })
+        'dependentes': dependentes,
+        'data_atual': data_atual,
+        'dependente_form': dependente_form,
+    }
+    
+    return render(request, 'detalhes_socio.html', context)
 
 def detalhes_dependente(request, dependente_id):
     dependente = get_object_or_404(Dependentes, pk=dependente_id)

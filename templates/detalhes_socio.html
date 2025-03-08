@@ -1,98 +1,102 @@
 {% extends "base.html" %}
 {% block conteudo %}
+
+<!-- Exibição de mensagens -->
 {% if messages %}
   {% for message in messages %}
-    <div class="alert 
-        {% if message.tags == 'success' %}alert-success
-        {% elif message.tags == 'error' %}alert-danger
-        {% elif message.tags == 'warning' %}alert-warning
-        {% else %}alert-info{% endif %}" role="alert">
+    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
       {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
   {% endfor %}
 {% endif %}
 
-{% if socio.foto %}
-  <img src="{{ socio.foto.url }}" alt="{{ socio.nome }} - Foto" class="foto-cracha">
-{% else %}
-  <p>Não há foto para este sócio.</p>
-{% endif %}
-<div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
-  <h2 class="m-0 font-weight-bold text-primary">Detalhes do Sócio Titular: {{ socio.nome }}</h2>
+<div class="container mt-4">
+  <div class="card shadow-lg p-4 bg-light">
+    <div class="text-center">
+      {% if socio.foto %}
+        <img src="{{ socio.foto.url }}" alt="{{ socio.nome }} - Foto" class="rounded-circle img-thumbnail border border-primary" width="150">
+      {% else %}
+        <p class="text-muted">Não há foto para este sócio.</p>
+      {% endif %}
+    </div>
+
+    <h2 class="text-dark text-center mt-3">Detalhes do Sócio</h2>
+    <h4 class="text-secondary text-center">Registro: {{ socio.nrcart }}</h4>
+    
+    <div class="row mt-3">
+      <div class="col-md-6">
+        <p><strong>Email:</strong> {{ socio.email }}</p>
+        <p><strong>Data de Nascimento:</strong> {{ socio.data_nascimento }}</p>
+      </div>
+      <div class="col-md-6">
+        <p><strong>Telefone:</strong> {{ socio.telefone }}</p>
+        <p><strong>Tipo de Sócio:</strong> {{ socio.tpsocio }}</p>
+      </div>
+    </div>
+
+    {% if socio.dtexame_fin < data_atual %}
+      <div class="alert alert-danger text-center fw-bold" role="alert">
+        <h5>Validade da taxa da piscina: {{ socio.dtexame_fin }} (Exame Vencido)</h5>
+        <p><strong>Atenção:</strong> ****Pagar taxa do exame****</p>
+      </div>
+    {% else %}
+      <h5 class="text-success text-center fw-bold">Validade da taxa da piscina: {{ socio.dtexame_fin }}</h5>
+    {% endif %}
+
+    <h5 class="text-center fw-bold {% if socio.ativo in 'S Sim' %}text-success{% else %}text-danger{% endif %}">
+      Situação: {% if socio.ativo in 'S Sim' %}Título Ativo{% else %}Título Encerrado{% endif %}
+    </h5>
+  </div>
+
+  <div class="card shadow-lg p-4 mt-4 bg-white">
+    <h2 class="text-primary text-center">Dependentes</h2>
+    <table class="table table-striped mt-3">
+      <thead class="bg-dark text-white">
+        <tr>
+          <th>Nome</th>
+          <th>Data de Nascimento</th>
+          <th>Idade</th>
+          <th>Filiação</th>
+          <th>Validade</th>
+          <th>Situação</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for dependente in dependentes %}
+          <tr>
+            <td>{{ dependente.nome }}</td>
+            <td>{{ dependente.data_nascimento }}</td>
+            <td>{{ dependente.idade }}</td>
+            <td>{{ dependente.filiacao }}</td>
+            <td>{{ dependente.validade }}</td>
+            <td>
+              {% if dependente.titulo_vencido %}
+                <span class="badge bg-danger">Título Vencido</span>
+              {% else %}
+                <span class="badge bg-success">Válido</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'editar_dependente' dependente.id %}" class="btn btn-sm btn-outline-primary">Editar</a>
+              <a href="{% url 'excluir_dependente' dependente.id %}" class="btn btn-sm btn-outline-danger">Excluir</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card shadow-lg p-4 mt-4 bg-light">
+    <h3 class="text-dark text-center">Adicionar Dependente</h3>
+    <form method="post" action="" enctype="multipart/form-data" class="mt-3">
+      {% csrf_token %}
+      {{ dependente_form.as_p }}
+      <div class="text-center">
+        <button type="submit" class="btn btn-success">Adicionar Dependente</button>
+      </div>
+    </form>
+  </div>
 </div>
-
-<div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
-  <h3 class="m-0 font-weight-bold text-info">Registro: {{ socio.nrcart }}</h3>
-</div>
-<p>Email: {{ socio.email }}</p>
-<p>Data de Nascimento: {{ socio.data_nascimento }}</p>
-<p>Telefone: {{ socio.telefone }}</p>
-<p>Tipo de Sócio: {{ socio.tpsocio }}</p>
-
-
-{% comment %}
-  {% if socio.dtexame_fin < data_atual or not socio.dtexame_ini or not socio.dtexame_fin or diferenca_dias > 60  %}
-{% endcomment %}
-{% if socio.dtexame_fin < data_atual  %}
-  <h3 class="m-0 font-weight-bold text-danger">Validade da taxa da piscina: {{ socio.dtexame_fin }} (Exame Vencido)</h3>
-  <p class="lead font-weight-bold text-danger">Atenção: ****Pagar taxa do exame****</p>
-{% else %}
-  <h3 class="m-0 font-weight-bold text-success">Validade da taxa da piscina: {{ socio.dtexame_fin }}</h3>
-{% endif %}
-
-{% if socio.ativo == "S" or socio.ativo == "Sim" or socio.ativo == "" %}
-  <h3 class="m-0 font-weight-bold text-info">Situação: Titulo Ativo</h3>
-{% else %}
-  <h3 class="m-0 font-weight-bold text-danger">Situação: Titulo Encerrado</h3>
-{% endif %}
-
-<div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
-  <h2 class="m-0 font-weight-bold text-primary">Dependentes</h2>
-</div>
-<table class="table table-striped">
-  <thead>
-    <tr>
-      <th>Nome</th>
-      <th>Data de Nascimento</th>
-      <th>Idade</th>
-      <th>Filiação</th>
-      <th>Validade</th>
-      <th>Situação</th>
-      <th>Ações</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for dependente in dependentes %}
-      <tr>
-        <td>{{ dependente.nome }}</td>
-        <td>{{ dependente.data_nascimento }}</td>
-        <td>{{ dependente.idade }}</td>
-        <td>{{ dependente.filiacao }}</td>
-        <td>{{ dependente.validade }}</td>
-        <td>
-          {% if dependente.titulo_vencido %}
-            <span class="text-danger font-weight-bold">Título Vencido</span>
-          {% else %}
-            <span class="text-success">Válido</span>
-          {% endif %}
-        </td>
-        <td>
-          <a href="{% url 'editar_dependente' dependente.id %}" class="btn btn-primary">Editar</a>
-          <a href="{% url 'excluir_dependente' dependente.id %}" class="btn btn-danger">Excluir</a>
-        </td>
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
-
-
-
-<div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
-  <h3 class="m-0 font-weight-bold text-primary">Adicionar dependente:</h3>
-</div>
-<form method="post" action="" enctype="multipart/form-data">
-  {% csrf_token %}
-  {{ dependente_form.as_p }}
-  <button type="submit" class="btn btn-success">Adicionar Dependente</button>
-</form>
 {% endblock conteudo %}
