@@ -26,10 +26,21 @@
 <div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
   <h3 class="m-0 font-weight-bold text-info" >Registro: {{ dependente.nrcart }}</h3>
 </div>
-<p>Data de Nascimento: {{ dependente.data_nascimento }} </p>
-<p>Idade: {{ idade_dependente }} anos </p>
-<p>Telefone: {{ dependente.telefone }}</p>
-<p>Nome do Titular: {{ socio.nome }}</p>
+<div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; box-shadow: 2px 2px 10px rgba(0,0,0,0.1); max-width: 400px;">
+  <p style="font-size: 16px; font-weight: bold; color: #333;">
+      📅 Data de Nascimento: <span style="color: #007bff;">{{ dependente.data_nascimento }}</span>
+  </p>
+  <p style="font-size: 16px; font-weight: bold; color: #333;">
+      🎂 Idade: <span style="color: #28a745;">{{ idade_dependente }} anos</span>
+  </p>
+  <p style="font-size: 16px; font-weight: bold; color: #333;">
+      📞 Telefone: <span style="color: #dc3545;">{{ dependente.telefone }}</span>
+  </p>
+  <p style="font-size: 16px; font-weight: bold; color: #333;">
+      👤 Nome do Titular: <span style="color: #6c757d;">{{ socio.nome }}</span>
+  </p>
+</div>
+
 
 {% if dependente.dtexame_fin < data_atual or dependente.dtexame_fin == None or diferenca_dias >= 60 %}
   <h3 class="m-0 font-weight-bold text-danger">Validade da taxa da piscina: {{ dependente.dtexame_fin }} (Exame Vencido)</h3>

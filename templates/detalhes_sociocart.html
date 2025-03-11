@@ -26,10 +26,25 @@
 <div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
   <h3 class="m-0 font-weight-bold text-info" >Registro: {{ socio.nrcart }}</h3>
 </div>
-<p>Email: {{ socio.email }}</p>
-<p>Data de Nascimento: {{ socio.data_nascimento }} </p>
-<p>Telefone: {{ socio.telefone }}</p>
-<p>Tipo de Sócio: {{ socio.tpsocio }}</p>
+<div class="row mt-3 p-3" style="background-color: #f8f9fa; border-radius: 8px; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);">
+  <div class="col-md-6">
+      <p style="font-size: 16px; font-weight: bold; color: #333;">
+          ✉️ Email: <span style="color: #007bff;">{{ socio.email }}</span>
+      </p>
+      <p style="font-size: 16px; font-weight: bold; color: #333;">
+          📅 Data de Nascimento: <span style="color: #28a745;">{{ socio.data_nascimento }}</span>
+      </p>
+  </div>
+  <div class="col-md-6">
+      <p style="font-size: 16px; font-weight: bold; color: #333;">
+          📞 Telefone: <span style="color: #dc3545;">{{ socio.telefone }}</span>
+      </p>
+      <p style="font-size: 16px; font-weight: bold; color: #333;">
+          🏅 Tipo de Sócio: <span style="color: #6c757d;">{{ socio.tpsocio }}</span>
+      </p>
+  </div>
+</div>
+
 {% if socio.dtexame_fin < data_atual   %}
   <h3 class="m-0 font-weight-bold text-danger">Validade da taxa da piscina: {{ socio.dtexame_fin }} (Exame Vencido)</h3>
   <p class="lead font-weight-bold text-danger">Atenção: ****Pagar taxa do exame****</p>
