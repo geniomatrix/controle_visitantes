@@ -38,12 +38,20 @@ INSTALLED_APPS += [
     'usuarios',
     'porteiros',
     'visitantes',
-    'socio',
+    'rest_framework',
+    'django_filters',
+    'apps.socio',
     'dashboard',
 
 
 
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ]
+}
 
 
 MIDDLEWARE = [

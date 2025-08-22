@@ -41,6 +41,7 @@ urlpatterns = [
     path("visitantes/<int:id>/", informacoes_visitante, name="informacoes_visitante"),
     path("visitantes/<int:id>/finalizar-visita/", finalizar_visita, name="finalizar_visita"),
     path("buscar/", buscar_visitante, name="buscar_visitante"),
+ 
     #path("listad/", lista_dependentes, name="lista_dependentes"),
     #path("cart/", identificacao, name="carteirinha"),
     

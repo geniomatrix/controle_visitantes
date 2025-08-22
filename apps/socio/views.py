@@ -1,6 +1,8 @@
 # socios/views.py
+
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, get_object_or_404, redirect
+import requests
 from .models import Socio, Dependentes
 from .forms import SocioForm, DependenteForm,BuscaSocioForm,SocioSearchForm,DependenteSearchForm
 from datetime import date, timedelta,datetime
@@ -8,21 +10,39 @@ from django.utils import timezone
 from .utils import preencher_endereco_por_cep
 import qrcode
 from io import BytesIO
-from django.core.files import File
 import base64
-from django.http import HttpResponse, HttpResponseRedirect,JsonResponse
+from django.http import HttpResponse, JsonResponse
 import cv2
-import numpy as np
 from dateutil.relativedelta import relativedelta
 from django.db.models import Q  # Importa Q para a query com OR
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.utils.timezone import now
-import openpyxl
 import pandas as pd
+from rest_framework import viewsets, filters
+from django_filters.rest_framework import DjangoFilterBackend
+from .serializers import SocioSerializer
 
 
+class SocioViewSet(viewsets.ModelViewSet):
+    """
+    API para listar, buscar, filtrar e manipular sócios.
+    """
+    queryset = Socio.objects.all().order_by('nome')
+    serializer_class = SocioSerializer
 
+    # Habilita filtros e buscas
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+
+    # Campos para filtro exato via query params (?codigo=001, ?estado=SP etc.)
+    filterset_fields = ['codigo', 'estado', 'municipio', 'tipo', 'tpcli']
+
+    # Campos para busca parcial (?search=joão)
+    search_fields = ['nome', 'codigo', 'municipio']
+
+    # Ordenação permitida (?ordering=nome ou ?ordering=-codigo)
+    ordering_fields = ['nome', 'codigo']
+    ordering = ['nome']
 
 def is_porteiro(user):
     return user.groups.filter(name="Porteiros").exists()
@@ -471,11 +491,10 @@ def search_socio(request):
     return render(request, 'search_results.html', {'form': form, 'results': results})  
  
 def cadastrar_socio(request):
-    
     if request.method == 'POST':
-        form = SocioForm(request.POST)
+        form = SocioForm(request.POST, request.FILES)
         if form.is_valid():
-            messages.success(request, "Sócio registrado com sucesso!")
+            # Preencher endereço pelo CEP
             cep = form.cleaned_data['cep']
             endereco = preencher_endereco_por_cep(cep)
             if endereco:
@@ -483,22 +502,48 @@ def cadastrar_socio(request):
                 form.instance.bairro = endereco['bairro']
                 form.instance.cidade = endereco['cidade']
                 form.instance.estado = endereco['estado']
-            existe_registros = Socio.objects.exists()
-            if existe_registros:  
+
+            # Gerar número da carteirinha
+            if Socio.objects.exists():
                 ultimo_registro = Socio.objects.latest('id')
-                proximo_registro = ultimo_registro.id + 1 
-                #dois_meses = timedelta(days=60)
-                #form.instance.dtexame_fin = timezone.now().date() + dois_meses
-                form.instance.nrcart = "S" + str(proximo_registro) + form.instance.tpsocio
-                #form.instance.foto = form.instance.foto.FILES['foto']
-                form.save()
+                proximo_registro = ultimo_registro.id + 1
             else:
-                #dois_meses = timedelta(days=60)
-                #form.instance.dtexame_fin = timezone.now().date() + dois_meses
-                form.instance.nrcart = "S" + str(1) + form.instance.tpsocio
-                #form.instance.foto = form.instance.foto.FILES['foto']
-                form.save()
-                
+                proximo_registro = 1
+
+            form.instance.nrcart = "S" + str(proximo_registro) + form.instance.tpsocio
+            socio = form.save()
+
+            # Monta payload com os campos que a API espera
+            payload = {
+                "nome": socio.nome,
+                "nrcart": socio.nrcart,
+                "email": socio.email,
+                "ativo": "sim"
+            }
+
+            # Mostrar no console o conteúdo antes do post
+            print("Payload que será enviado para a API :")
+            for key, value in payload.items():
+                print(f"{key}: {value}")
+
+            try:
+                # Envia JSON diretamente
+                headers = {
+                       "User-Agent": "PostmanRuntime/7.32.0"
+            }
+                response = requests.post(
+                    'http://quiosque.ccsclubedecampo.com.br/api/socios.php',
+                    json=payload,
+                    headers=headers,
+                    timeout=10
+                )
+                if response.status_code == 200:
+                    messages.success(request, "Sócio registrado com sucesso e enviado para a API APP AW-Reservas!")
+                else:
+                    messages.warning(request, f"Sócio registrado, mas houve um erro ao enviar para a API. Status: {response.status_code}, Resposta: {response.text}")
+            except requests.exceptions.RequestException as e:
+                messages.warning(request, f"Sócio registrado, mas não foi possível enviar para a API. Erro: {e}")
+
             return redirect('lista_socios')
     else:
         form = SocioForm()
@@ -742,3 +787,5 @@ def exportar_excel(request):
 
     df.to_excel(response, index=False, engine='openpyxl')
     return response
+
+
