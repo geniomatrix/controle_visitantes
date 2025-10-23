@@ -1,5 +1,8 @@
 {
     "python.pythonPath": "env\\Scripts\\python.exe",
     "totvsLanguageServer.welcomePage": false,
-    "totvsLanguageServer.editor.linter.includes": "C:\\TOTVS\\PROTHEUS122210\\Protheus\\include"
+    "totvsLanguageServer.editor.linter.includes": "C:\\TOTVS\\PROTHEUS122210\\Protheus\\include",
+    "python.analysis.extraPaths": [
+        "./apps"
+    ]
 }

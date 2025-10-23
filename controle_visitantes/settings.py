@@ -33,18 +33,14 @@ INSTALLED_APPS += [
     'widget_tweaks',
 ]
 
-
 INSTALLED_APPS += [
-    'usuarios',
+    'usuarios',   
     'porteiros',
     'visitantes',
     'rest_framework',
     'django_filters',
-    'apps.socio',
+    'socio',
     'dashboard',
-
-
-
 ]
 
 REST_FRAMEWORK = {

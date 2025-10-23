@@ -6,16 +6,16 @@ from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
 
-
-
 from apps.dashboard import views
 from dashboard.views import index
+from apps.usuarios import views as views
 from visitantes.views import (
     registrar_visitante, informacoes_visitante, finalizar_visita,buscar_visitante,identificacao
 )
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path('password_reset/', views.password_reset_local, name='password_reset'),
     
     #path("login/", auth_views.LoginView.as_view(
      #   template_name="login.html"
@@ -25,7 +25,10 @@ urlpatterns = [
     path('accounts/', include('apps.usuarios.urls')),  # Incluindo as URLs do app 'usuarios'
 
     # URLs para resetar a senha
-    path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    #path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    #path('password_reset/', views.password_reset_local, name='password_reset'),
+
+
     path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'), 

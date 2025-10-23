@@ -8,6 +8,12 @@ from django import forms
 from django.contrib.auth import get_user_model  # Importa get_user_model
 from django.contrib import messages
 from django.shortcuts import render, redirect
+from django.contrib.auth.hashers import make_password
+from django.db.models import Q
+
+from usuarios.forms import PasswordResetLocalForm
+
+from .forms import PasswordResetLocalForm  # ajuste o import conforme seu projeto
 
 # Obter o modelo de usuário personalizado
 User = get_user_model()
@@ -18,6 +24,30 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
 
 Usuario = get_user_model()
+
+def password_reset_local(request):
+    if request.method == 'POST':
+        form = PasswordResetLocalForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            nova_senha = form.cleaned_data['nova_senha']
+            try:
+                user = User.objects.get(email=email)
+                user.set_password(nova_senha)
+                user.save()
+                messages.success(request, "Senha redefinida com sucesso! Faça login com sua nova senha.")
+                return redirect('login')  # redireciona para limpar tudo
+            except User.DoesNotExist:
+                messages.error(request, "Usuário com este e-mail não encontrado.")
+                # cairá no render abaixo; form já tem erros de mensagens
+        # Se inválido (ou usuário não existe), antes de renderizar forçamos limpar os campos de senha no widget
+        # (apenas para garantir que nenhum valor seja mostrado)
+        form.fields['nova_senha'].widget.attrs.pop('value', None)
+        form.fields['confirmar_senha'].widget.attrs.pop('value', None)
+    else:
+        form = PasswordResetLocalForm()
+
+    return render(request, 'password_reset_local.html', {'form': form})
 
 class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
