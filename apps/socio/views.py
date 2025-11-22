@@ -391,55 +391,71 @@ def buscar_socio(request):
         if form.is_valid():
             nrcart = form.cleaned_data['nrcart']
 
+            # 1) Tenta achar como SÓCIO
             try:
                 socio = Socio.objects.get(nrcart=nrcart)
                 socio_id = socio.id
-                socio_ativo = verificar_socio_ativo(socio_id)
+                socio_ativo = verificar_socio_ativo(socio_id)  # agora retorna 'S', 'N' ou 'Sim'
+
+                # 🔹 BUSCA OS DEPENDENTES DESSE SÓCIO
+                dependentes = Dependentes.objects.filter(socio=socio).order_by('nome')
 
                 if socio_ativo != 'N':
                     return render(request, 'detalhes_sociocart.html', {
                         'socio': socio,
                         'socio_id': socio_id,
-                        'data_atual': data_atual
+                        'data_atual': data_atual,
+                        'dependentes': dependentes,   # ✅ AGORA VAI PRO TEMPLATE
                     })
                 else:
                     return render(request, 'detalhes_sociocart_inativo.html', {
                         'socio': socio,
                         'socio_id': socio_id,
-                        'data_atual': data_atual
+                        'data_atual': data_atual,
+                        'dependentes': dependentes,   # se quiser mostrar mesmo inativo
                     })
 
             except Socio.DoesNotExist:
+                # 2) Se não achar sócio, tenta como DEPENDENTE
                 try:
                     dependente = Dependentes.objects.get(nrcart=nrcart)
                     socio = dependente.socio
+                    socio_id = socio.id
                     dependente_id = dependente.id
                     dependente_ativo = verificar_dependente_ativo(dependente_id)
 
                     today = date.today()
 
-                    # Calculando a idade do dependente
-                    idade_dependente = today.year - dependente.data_nascimento.year - \
-                                       ((today.month, today.day) < (dependente.data_nascimento.month, dependente.data_nascimento.day))
+                    # ⚠️ Calculando a idade do dependente com segurança
+                    idade_dependente = None
+                    if dependente.data_nascimento:
+                        idade_dependente = today.year - dependente.data_nascimento.year - (
+                            (today.month, today.day) <
+                            (dependente.data_nascimento.month, dependente.data_nascimento.day)
+                        )
 
-                    # Definição da validade e validação da idade
-                    if dependente.validade:  # Se a validade estiver preenchida, consideramos ela
-                        validade = dependente.validade
-                    else:  # Caso contrário, aplicamos a regra baseada na idade
-                        if dependente.filiacao == "FILHO(a)":
-                            if idade_dependente < 22:
-                                validade = dependente.data_nascimento + relativedelta(years=22) - timedelta(days=1)
+                    # Definição da validade
+                    validade = dependente.validade
+
+                    if not validade:
+                        # Se não tiver validade preenchida, aplica regra baseada em idade + filiação
+                        if dependente.data_nascimento:
+                            if dependente.filiacao == "FILHO(a)":
+                                if idade_dependente is not None and idade_dependente < 22:
+                                    validade = dependente.data_nascimento + relativedelta(years=22) - timedelta(days=1)
+                                else:
+                                    validade = today - timedelta(days=1)  # vencido
+                            elif dependente.filiacao in ["NETO(a)", "BISNETO(a)"]:
+                                if idade_dependente is not None and idade_dependente < 13:
+                                    validade = dependente.data_nascimento + relativedelta(years=13) - timedelta(days=1)
+                                else:
+                                    validade = today - timedelta(days=1)  # vencido
                             else:
-                                validade = today - timedelta(days=1)  # Define como vencida
-                        elif dependente.filiacao in ["NETO(a)", "BISNETO(a)"]:
-                            if idade_dependente < 13:
-                                validade = dependente.data_nascimento + relativedelta(years=13) - timedelta(days=1)
-                            else:
-                                validade = today - timedelta(days=1)  # Define como vencida
+                                validade = None  # outros tipos sem regra específica
                         else:
-                            validade = None  # Outros tipos de dependentes sem restrição de idade
+                            validade = None
 
-                        dependente.validade = validade  # Atualiza a validade no objeto
+                        dependente.validade = validade  # atualiza no objeto (não salva no banco aqui)
 
                     # Verificando se o título está vencido
                     titulo_vencido = validade is not None and today > validade
@@ -477,8 +493,8 @@ def buscar_socio(request):
         'form': form,
         'data_atual': data_atual,
         'titulo_vencido': titulo_vencido,
-        
     })
+
 def search_socio(request):
     form = SocioSearchForm(request.GET)
     results = []
@@ -696,34 +712,63 @@ def verificar_dependente_ativo(socio_id):
 
 
 def pagar_taxasocio(request, pk):
-    # Obtenha o socio pelo ID
-    socio = get_object_or_404(Socio, pk=pk)
-    
-    # Atualize os campos de data
-    socio.dtexame_ini = now()  # Data atual
-    socio.dtexame_fin = now() + timedelta(days=60)  # Adiciona 2 meses
-    socio.save()
+    socio = get_object_or_404(Socio, id=pk)
+    data_atual = date.today()
 
-    # Mensagem de confirmação
-    messages.success(request, f"A taxa de piscina para {socio.nome} foi paga com sucesso!")
-    
-    # Redirecione para a página de detalhes do socio
-    return redirect('buscar_socio')
-  
-def pagar_taxadep(request, pk):
-    # Obtenha o dependente pelo ID
-    dependente = get_object_or_404(Dependentes, pk=pk)
-    
-    # Atualize os campos de data
-    dependente.dtexame_ini = now()  # Data atual
-    dependente.dtexame_fin = now() + timedelta(days=60)  # Adiciona 2 meses
-    dependente.save()
+    if request.method == "POST":
+        forma_pagamento = request.POST.get("forma_pagamento")
 
-    # Mensagem de confirmação
-    messages.success(request, f"A taxa de piscina para {dependente.nome} foi paga com sucesso!")
-    
-    # Redirecione para a página de detalhes do dependente
+        # Atualiza dados da taxa
+        socio.forma_pagamento_ultima_taxa = forma_pagamento
+        socio.data_pagamento_ultima_taxa = timezone.now()
+        socio.dtexame_ini = timezone.now().date()
+        socio.dtexame_fin = timezone.now().date() + timedelta(days=60)
+        socio.save()
+
+        # Se quiser manter messages para logs/uso futuro, ok
+        messages.success(
+            request,
+            f"Taxa de piscina registrada para o sócio {socio.nome}. Forma de pagamento: {forma_pagamento}."
+        )
+
+        # Volta para a MESMA tela, já atualizada, com flag para abrir o modal
+        return render(request, 'detalhes_sociocart.html', {
+            'socio': socio,
+            'data_atual': data_atual,
+            'pagamento_sucesso': forma_pagamento,  # flag p/ modal
+        })
+
+    # Se acessar via GET, volta para busca
     return redirect('buscar_socio')
+
+
+def pagar_taxadepe(request, pk):
+    dependente = get_object_or_404(Dependentes, id=pk)
+    socio = dependente.socio
+    data_atual = date.today()
+
+    if request.method == "POST":
+        forma_pagamento = request.POST.get("forma_pagamento")
+
+        dependente.forma_pagamento_ultima_taxa = forma_pagamento
+        dependente.data_pagamento_ultima_taxa = timezone.now()
+        dependente.dtexame_ini = timezone.now().date()
+        dependente.dtexame_fin = timezone.now().date() + timedelta(days=60)
+        dependente.save()
+
+        # FLAG para abrir modal no HTML
+        return render(request, 'detalhes_dependente.html', {
+            'dependente': dependente,
+            'socio': socio,
+            'data_atual': data_atual,
+            'idade_dependente': None,
+            'titulo_vencido': False,
+            'pagamento_sucesso': forma_pagamento,   # <--- FLAG
+        })
+
+    # Caso GET (não deveria acontecer):
+    return redirect('buscar_socio')
+
   
 def relatorio_socios(request):
     tipo = request.GET.get('tipo', 'socio')
@@ -788,4 +833,162 @@ def exportar_excel(request):
     df.to_excel(response, index=False, engine='openpyxl')
     return response
 
+def relatorio_taxa_piscina(request):
+    hoje = date.today()
 
+    # filtros via GET
+    filtro_tipo = request.GET.get('tipo', 'todos')      # 'todos', 'socio', 'dependente'
+    filtro_status = request.GET.get('status', 'todos')  # 'todos', 'em_dia', 'vencido'
+
+    registros = []
+
+    # --------- SÓCIOS ---------
+    if filtro_tipo in ('todos', 'socio'):
+        socios_qs = Socio.objects.all()
+
+        if filtro_status == 'em_dia':
+            socios_qs = socios_qs.filter(dtexame_fin__gte=hoje)
+        elif filtro_status == 'vencido':
+            socios_qs = socios_qs.filter(Q(dtexame_fin__lt=hoje) | Q(dtexame_fin__isnull=True))
+
+        for s in socios_qs:
+            if s.dtexame_fin and s.dtexame_fin >= hoje:
+                situacao = 'Em dia'
+            else:
+                situacao = 'Vencido / Não pago'
+
+            registros.append({
+                'tipo_registro': 'Sócio',
+                'nome': s.nome,
+                'nrcart': s.nrcart,
+                'titular': s.nome,  # no caso do sócio, ele mesmo
+                'categoria': s.tpsocio,
+                'filiacao': '',
+                'dtexame_ini': s.dtexame_ini,
+                'dtexame_fin': s.dtexame_fin,
+                'situacao': situacao,
+                'forma_pagamento': getattr(s, 'forma_pagamento_ultima_taxa', ''),
+                'data_pagamento': getattr(s, 'data_pagamento_ultima_taxa', None),
+            })
+
+    # --------- DEPENDENTES ---------
+    if filtro_tipo in ('todos', 'dependente'):
+        dependentes_qs = Dependentes.objects.select_related('socio').all()
+
+        if filtro_status == 'em_dia':
+            dependentes_qs = dependentes_qs.filter(dtexame_fin__gte=hoje)
+        elif filtro_status == 'vencido':
+            dependentes_qs = dependentes_qs.filter(Q(dtexame_fin__lt=hoje) | Q(dtexame_fin__isnull=True))
+
+        for d in dependentes_qs:
+            if d.dtexame_fin and d.dtexame_fin >= hoje:
+                situacao = 'Em dia'
+            else:
+                situacao = 'Vencido / Não pago'
+
+            registros.append({
+                'tipo_registro': 'Dependente',
+                'nome': d.nome,
+                'nrcart': d.nrcart,
+                'titular': d.socio.nome if d.socio else '',
+                'categoria': d.tpsocio,
+                'filiacao': d.filiacao,
+                'dtexame_ini': d.dtexame_ini,
+                'dtexame_fin': d.dtexame_fin,
+                'situacao': situacao,
+                'forma_pagamento': getattr(d, 'forma_pagamento_ultima_taxa', ''),
+                'data_pagamento': getattr(d, 'data_pagamento_ultima_taxa', None),
+            })
+
+    # Ordenar por nome só para ficar mais organizado
+    registros = sorted(registros, key=lambda x: (x['tipo_registro'], x['titular'], x['nome']))
+
+    context = {
+        'registros': registros,
+        'filtro_tipo': filtro_tipo,
+        'filtro_status': filtro_status,
+        'data_hoje': hoje,
+    }
+
+    return render(request, 'relatorio_taxa_piscina.html', context)
+
+
+
+
+def exportar_taxa_piscina(request):
+    hoje = date.today()
+
+    filtro_tipo = request.GET.get('tipo', 'todos')      # 'todos', 'socio', 'dependente'
+    filtro_status = request.GET.get('status', 'todos')  # 'todos', 'em_dia', 'vencido'
+
+    linhas = []
+
+    # --------- SÓCIOS ---------
+    if filtro_tipo in ('todos', 'socio'):
+        socios_qs = Socio.objects.all()
+
+        if filtro_status == 'em_dia':
+            socios_qs = socios_qs.filter(dtexame_fin__gte=hoje)
+        elif filtro_status == 'vencido':
+            socios_qs = socios_qs.filter(Q(dtexame_fin__lt=hoje) | Q(dtexame_fin__isnull=True))
+
+        for s in socios_qs:
+            if s.dtexame_fin and s.dtexame_fin >= hoje:
+                situacao = 'Em dia'
+            else:
+                situacao = 'Vencido / Não pago'
+
+            linhas.append({
+                'Tipo Registro': 'Sócio',
+                'Nome': s.nome,
+                'Nº Carteira': s.nrcart,
+                'Titular': s.nome,
+                'Categoria/Filiacao': s.tpsocio,
+                'Data Pagamento': s.data_pagamento_ultima_taxa,
+                'Forma Pagamento': getattr(s, 'forma_pagamento_ultima_taxa', ''),
+                'Data Início Taxa': s.dtexame_ini,
+                'Validade Taxa': s.dtexame_fin,
+                'Situação': situacao,
+            })
+
+    # --------- DEPENDENTES ---------
+    if filtro_tipo in ('todos', 'dependente'):
+        dependentes_qs = Dependentes.objects.select_related('socio').all()
+
+        if filtro_status == 'em_dia':
+            dependentes_qs = dependentes_qs.filter(dtexame_fin__gte=hoje)
+        elif filtro_status == 'vencido':
+            dependentes_qs = dependentes_qs.filter(Q(dtexame_fin__lt=hoje) | Q(dtexame_fin__isnull=True))
+
+        for d in dependentes_qs:
+            if d.dtexame_fin and d.dtexame_fin >= hoje:
+                situacao = 'Em dia'
+            else:
+                situacao = 'Vencido / Não pago'
+
+            linhas.append({
+                'Tipo Registro': 'Dependente',
+                'Nome': d.nome,
+                'Nº Carteira': d.nrcart,
+                'Titular': d.socio.nome if d.socio else '',
+                'Categoria/Filiacao': d.filiacao,
+                'Data Pagamento': d.data_pagamento_ultima_taxa,
+                'Forma Pagamento': getattr(d, 'forma_pagamento_ultima_taxa', ''),
+                'Data Início Taxa': d.dtexame_ini,
+                'Validade Taxa': d.dtexame_fin,
+                'Situação': situacao,
+            })
+
+    # Monta DataFrame
+    df = pd.DataFrame(linhas)
+
+    # Cria resposta HTTP com Excel
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename="relatorio_taxa_piscina.xlsx"'
+
+    # Exporta para Excel usando openpyxl
+    df.to_excel(response, index=False, engine='openpyxl')
+
+    return response

@@ -1,23 +1,28 @@
 # socios/models.py 
 from django.db import models
 
+# 👉 Choices reaproveitados para Sócio e Dependente
+FORMA_PAGAMENTO_CHOICES = [
+    ('Cartão', 'Cartão'),
+    ('Dinheiro', 'Dinheiro'),
+    ('Pix', 'Pix'),
+]
+
 class Socio(models.Model):
 
     OPC_CATEGORIA = [
         ("II", "Servidor Publico"),
         ("VI", "Particular")
-
     ]
 
     OPC_ATIVAR = [
         ("S", "Sim"),
         ("N", "Nao")
-
     ]
 
     nome = models.CharField(max_length=100)
     #email = models.EmailField(unique=True)
-    email = models.EmailField(unique=False,max_length=40, null=True,blank=True,)
+    email = models.EmailField(unique=False, max_length=40, null=True, blank=True)
     data_nascimento = models.DateField()
     telefone = models.CharField(max_length=20, null=True)
 
@@ -28,7 +33,6 @@ class Socio(models.Model):
         default="Sim"
     )
 
-    
     tpsocio = models.CharField(
         verbose_name="Tipo de Socio",
         max_length=50,
@@ -42,7 +46,6 @@ class Socio(models.Model):
         auto_now=False,
         blank=True,
         null=True,
-
     )
     dtexame_fin = models.DateField(
         verbose_name="Validade da taxa da piscina",
@@ -50,29 +53,48 @@ class Socio(models.Model):
         auto_now=False,
         blank=True,
         null=True,
+    )
 
+    # 📌 NOVOS CAMPOS – informação da última taxa paga
+    forma_pagamento_ultima_taxa = models.CharField(
+        "Forma de pagamento da última taxa",
+        max_length=20,
+        choices=FORMA_PAGAMENTO_CHOICES,
+        blank=True,
+        null=True,
+    )
+
+    data_pagamento_ultima_taxa = models.DateTimeField(
+        "Data do pagamento da última taxa",
+        blank=True,
+        null=True,
     )
 
     foto = models.ImageField(upload_to='static/images/', null=True, blank=True)
-    #foto = models.ImageField(upload_to='images', null=True, blank=True)
     nrcart = models.CharField(max_length=20, null=True)
-    registro = models.CharField(verbose_name="Numero da Matricula no caso de servidor publico",max_length=20, null=True,blank=True)
+    registro = models.CharField(
+        verbose_name="Numero da Matricula no caso de servidor publico",
+        max_length=20,
+        null=True,
+        blank=True
+    )
     cpf = models.CharField(max_length=20, null=True, blank=True)
-    
-    #endereço
-    logradouro = models.CharField(verbose_name="AV/Rua",max_length=255, null=True,blank=True)
+
+    # endereço
+    logradouro = models.CharField(verbose_name="AV/Rua", max_length=255, null=True, blank=True)
     bairro = models.CharField(max_length=100, null=True, blank=True)
     cidade = models.CharField(max_length=100, null=True, blank=True)
     estado = models.CharField(max_length=2, null=True, blank=True)
     cep = models.CharField(max_length=9, null=True, blank=True)
 
     class Meta:
-            verbose_name = "Sócio"
-            verbose_name_plural = "Sócios"
-            db_table = "socio"
+        verbose_name = "Sócio"
+        verbose_name_plural = "Sócios"
+        db_table = "socio"
 
     def __str__(self):
         return self.nome
+
 
 class Dependentes(models.Model):
     OPC_FILIACAO = [
@@ -85,12 +107,11 @@ class Dependentes(models.Model):
     ]
 
     OPC_ATIVAR = [
-            ("S", "Sim"),
-            ("N", "Nao")
+        ("S", "Sim"),
+        ("N", "Nao")
+    ]
 
-        ]
-
-    socio = models.ForeignKey(Socio, on_delete=models.CASCADE,related_name='dependentes')
+    socio = models.ForeignKey(Socio, on_delete=models.CASCADE, related_name='dependentes')
     nome = models.CharField(max_length=100)
     data_nascimento = models.DateField()
     
@@ -107,7 +128,6 @@ class Dependentes(models.Model):
         auto_now=False,
         blank=True,
         null=True,
-
     )
 
     dtexame_ini = models.DateField(
@@ -116,7 +136,6 @@ class Dependentes(models.Model):
         auto_now=False,
         blank=True,
         null=True,
-
     )
     dtexame_fin = models.DateField(
         verbose_name="Validade da taxa da piscina",
@@ -124,7 +143,21 @@ class Dependentes(models.Model):
         auto_now=False,
         blank=True,
         null=True,
+    )
 
+    # 📌 NOVOS CAMPOS – informação da última taxa do dependente
+    forma_pagamento_ultima_taxa = models.CharField(
+        "Forma de pagamento da última taxa",
+        max_length=20,
+        choices=FORMA_PAGAMENTO_CHOICES,
+        blank=True,
+        null=True,
+    )
+
+    data_pagamento_ultima_taxa = models.DateTimeField(
+        "Data do pagamento da última taxa",
+        blank=True,
+        null=True,
     )
 
     foto = models.ImageField(upload_to='static/images/', null=True, blank=True)
@@ -145,10 +178,9 @@ class Dependentes(models.Model):
     )
 
     class Meta:
-            verbose_name = "Dependente"
-            verbose_name_plural = "Dependentes"
-            db_table = "dependentes"
-
+        verbose_name = "Dependente"
+        verbose_name_plural = "Dependentes"
+        db_table = "dependentes"
 
     def __str__(self):
         return self.nome

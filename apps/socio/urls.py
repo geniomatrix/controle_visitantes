@@ -19,6 +19,7 @@ urlpatterns = [
     path('socios', views.buscar_socio, name='buscar_socio'),
     path('cart', views.search_socio, name='search_socio'),
     path('<int:socio_id>/', views.detalhes_socio, name='detalhes_socio'),
+    path('<int:dependente_id>/', views.detalhes_dependente, name='detalhes_dependente'),
     path('carteirinha/<int:pk>', views.carteirinha, name='carteirinha'),
     path('cartdep/<int:pk>', views.cartdep, name='cartdep'),
     path('cadastrar_socio/', views.cadastrar_socio, name='cadastrar_socio'),
@@ -28,8 +29,14 @@ urlpatterns = [
     path('editar_dependente/<int:pk>/', views.editar_dependente, name='editar_dependente'),
     path('excluir_socio/<int:pk>/', views.excluir_socio, name='excluir_socio'),
     path('excluir_dependente/<int:pk>/', views.excluir_dependente, name='excluir_dependente'),
-    path('pagar_taxasocio/<int:pk>/', views.pagar_taxasocio, name='pagar_taxasocio'),
-    path('pagar_taxadep/<int:pk>/', views.pagar_taxadep, name='pagar_taxadep'),
+    path('socios/pagar_taxasocio/<int:pk>/', views.pagar_taxasocio, name='pagar_taxasocio'),
+    path('socios/pagar_taxadepe/<int:pk>/', views.pagar_taxadepe, name='pagar_taxadepe'),
     path('relatorio/', views.relatorio_socios, name='relatorio_socios'),
     path('exportar_excel/', views.exportar_excel, name='exportar_excel'),
+    path('socios/relatorio_taxa_piscina/', views.relatorio_taxa_piscina, name='relatorio_taxa_piscina'),
+    path('socios/relatorio_taxa_piscina/exportar/',views.exportar_taxa_piscina, name='exportar_taxa_piscina'),
+
+    
+
+
 ]
