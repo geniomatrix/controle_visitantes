@@ -548,7 +548,7 @@ def cadastrar_socio(request):
                        "User-Agent": "PostmanRuntime/7.32.0"
             }
                 response = requests.post(
-                    'http://quiosque.ccsclubedecampo.com.br/api/socios.php',
+                    'https://reservasclubeccs.online/api/socios.php',
                     json=payload,
                     headers=headers,
                     timeout=10
