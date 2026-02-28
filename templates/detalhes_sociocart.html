@@ -53,9 +53,11 @@
   <p class="lead font-weight-bold text-danger">Atenção: ****Pagar taxa do exame****</p>
 
   <!-- Botão Pagar Taxa -->
+ {% if request.user.email|lower != "enfermaria.ccs040470@gmail.com" %}
   <button class="btn btn-primary" id="pagarTaxaBtn" data-toggle="modal" data-target="#pagarTaxaModal">
     Pagar Taxa de Piscina
   </button>
+ {% endif %}
   
   <!-- Modal de Confirmação + Forma de Pagamento -->
   <div class="modal fade" id="pagarTaxaModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
@@ -110,11 +112,13 @@
       </div>
     </div>
   </div>
+  
 {% else %}
   <h3 class="m-0 font-weight-bold text-success mt-3">
     Validade da taxa da piscina: {{ socio.dtexame_fin }}
   </h3>
 {% endif %}
+
 
 {% if socio.ativo == "S" or socio.ativo == "Sim" or socio.ativo == "" %}
   <h3 class="m-0 font-weight-bold text-info mt-3">Situação: Título Ativo</h3>

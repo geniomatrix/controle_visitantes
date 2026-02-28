@@ -711,34 +711,50 @@ def verificar_dependente_ativo(socio_id):
     
 
 
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib import messages
+from django.utils import timezone
+from datetime import date, timedelta
+
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib import messages
+from django.utils import timezone
+from datetime import date, timedelta
+
 def pagar_taxasocio(request, pk):
+
+    # 🔒 BLOQUEIO DIRETO POR USUÁRIO
+    if request.user.email == "enfermaria.ccs040470@gmail.com":
+        messages.error(
+            request,
+            "Seu usuário não possui permissão para registrar pagamento de taxa."
+        )
+        return redirect('buscar_socio')
+
     socio = get_object_or_404(Socio, id=pk)
     data_atual = date.today()
 
     if request.method == "POST":
         forma_pagamento = request.POST.get("forma_pagamento")
 
-        # Atualiza dados da taxa
         socio.forma_pagamento_ultima_taxa = forma_pagamento
         socio.data_pagamento_ultima_taxa = timezone.now()
         socio.dtexame_ini = timezone.now().date()
         socio.dtexame_fin = timezone.now().date() + timedelta(days=60)
         socio.save()
 
-        # Se quiser manter messages para logs/uso futuro, ok
         messages.success(
             request,
-            f"Taxa de piscina registrada para o sócio {socio.nome}. Forma de pagamento: {forma_pagamento}."
+            f"Taxa de piscina registrada para o sócio {socio.nome}. "
+            f"Forma de pagamento: {forma_pagamento}."
         )
 
-        # Volta para a MESMA tela, já atualizada, com flag para abrir o modal
         return render(request, 'detalhes_sociocart.html', {
             'socio': socio,
             'data_atual': data_atual,
-            'pagamento_sucesso': forma_pagamento,  # flag p/ modal
+            'pagamento_sucesso': forma_pagamento,
         })
 
-    # Se acessar via GET, volta para busca
     return redirect('buscar_socio')
 
 
