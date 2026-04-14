@@ -40,17 +40,13 @@
     <hr>
 
     <!-- Botões: Imprimir e Exportar -->
-    <div class="mb-4">
-        <button onclick="imprimirRelatorio()" class="btn btn-success">
-            <i class="fa fa-print"></i> Imprimir
-        </button>
-  {% comment %}
-          <a id="exportar-excel" href="#" class="btn btn-success">
-              <i class="fa fa-file-excel"></i> Exportar para Excel
-          </a>
-  {% endcomment %}
-    </div>
-    
+ <div class="mb-4">
+    <a href="{% url 'imprimir_relatorio_socios' %}?tipo={{ tipo|urlencode }}&filtro={{ filtro|urlencode }}&filiacao={{ filiacao|urlencode }}"
+       target="_blank"
+       class="btn btn-success">
+        <i class="fa fa-print"></i> Imprimir
+    </a>
+</div>   
     <!-- Tabela -->
     <div class="relatorio-print">
         {% if tipo == "socio" %}
@@ -122,7 +118,12 @@
 
 <script>
     function imprimirRelatorio() {
-        window.print();
+        //window.print();
+        <a href="{% url 'imprimir_relatorio_socios' %}?tipo={{ tipo|urlencode }}&filtro={{ filtro|urlencode }}&filiacao={{ filiacao|urlencode }}"
+            target="_blank"
+            class="btn btn-success">
+            <i class="fa fa-print"></i> Imprimir
+        </a>
     }
 </script>
 

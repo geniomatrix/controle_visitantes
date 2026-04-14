@@ -789,26 +789,29 @@ def pagar_taxadepe(request, pk):
 def relatorio_socios(request):
     tipo = request.GET.get('tipo', 'socio')
     filtro = request.GET.get('filtro', '').strip()
-    filiacao = request.GET.get('filiacao', '').strip()  # Captura o filiacao selecionado
+    filiacao = request.GET.get('filiacao', '').strip()
 
-    # Filtrando sócios ou dependentes dependendo do tipo selecionado
+    # Base da consulta
     if tipo == 'socio':
         queryset = Socio.objects.all()
     else:
         queryset = Dependentes.objects.all()
 
-    # Aplicando o filtro de nome ou número da carteira
+    # Filtro por nome ou carteira
     if filtro:
         queryset = queryset.filter(
             Q(nome__icontains=filtro) | Q(nrcart__icontains=filtro)
         )
 
-    # Aplicando filtro de filiacao (se for dependente e filiacao for escolhido)
+    # Filtro por filiação somente para dependentes
     if tipo == 'dependente' and filiacao:
         queryset = queryset.filter(filiacao__icontains=filiacao)
 
-    # Paginação
-    paginator = Paginator(queryset, 10)  # 10 itens por página
+    # Ordenação
+    queryset = queryset.order_by('nome')
+
+    # Paginação da tela normal
+    paginator = Paginator(queryset, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -819,6 +822,37 @@ def relatorio_socios(request):
         'page_obj': page_obj,
     })
 
+
+def imprimir_relatorio_socios(request):
+    tipo = request.GET.get('tipo', 'socio')
+    filtro = request.GET.get('filtro', '').strip()
+    filiacao = request.GET.get('filiacao', '').strip()
+
+    # Base da consulta
+    if tipo == 'socio':
+        queryset = Socio.objects.all()
+    else:
+        queryset = Dependentes.objects.all()
+
+    # Filtro por nome ou carteira
+    if filtro:
+        queryset = queryset.filter(
+            Q(nome__icontains=filtro) | Q(nrcart__icontains=filtro)
+        )
+
+    # Filtro por filiação somente para dependentes
+    if tipo == 'dependente' and filiacao:
+        queryset = queryset.filter(filiacao__icontains=filiacao)
+
+    # Ordenação
+    queryset = queryset.order_by('nome')
+
+    return render(request, 'relatorio_socios_print.html', {
+        'tipo': tipo,
+        'filtro': filtro,
+        'filiacao': filiacao,
+        'registros': queryset,
+    })
 def exportar_excel(request):
     tipo = request.GET.get('tipo', '')  # Filtrar pelo tipo de sócio
     buscar = request.GET.get('filtro', '')  # Agora usa 'filtro' como no HTML

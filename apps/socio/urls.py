@@ -32,6 +32,7 @@ urlpatterns = [
     path('socios/pagar_taxasocio/<int:pk>/', views.pagar_taxasocio, name='pagar_taxasocio'),
     path('socios/pagar_taxadepe/<int:pk>/', views.pagar_taxadepe, name='pagar_taxadepe'),
     path('relatorio/', views.relatorio_socios, name='relatorio_socios'),
+    path('relatorio-socios/imprimir/', views.imprimir_relatorio_socios, name='imprimir_relatorio_socios'),
     path('exportar_excel/', views.exportar_excel, name='exportar_excel'),
     path('socios/relatorio_taxa_piscina/', views.relatorio_taxa_piscina, name='relatorio_taxa_piscina'),
     path('socios/relatorio_taxa_piscina/exportar/',views.exportar_taxa_piscina, name='exportar_taxa_piscina'),

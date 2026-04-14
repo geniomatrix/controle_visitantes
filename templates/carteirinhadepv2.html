@@ -63,7 +63,7 @@
             font-size: 12px;
         }
 
-   
+
         .titulo {
             position: absolute;
             top: 60mm; /* Distância do topo */
@@ -76,7 +76,7 @@
             top: 65mm; /* Distância do topo */
             left: 3mm; /* Distância da esquerda */
             font-size: 13px;
-        }        
+        }
 
         .subtitulo {
             position: absolute;
@@ -103,45 +103,45 @@
             <p id="end">Rua Frei Angélico Manente nº 325 - Jardim Tupã </p>
             <p id="end">Riacho Grande-SBC-SP </p>
             <p id="fone">Telefone:(11) 99770-3338 (WhatsApp) </p>
-            <div class="linha-divisoria"></div>    
-         
+            <div class="linha-divisoria"></div>
+
         </div>
- 
+
 
         {% if dependentes.foto %}
             <img class="foto" id="foto" style="right: 10mm width: 15mm; height: 25mm;" src="{{ dependentes.foto.url }}" alt="{{ dependentes.nome }} - Foto">
-            
+
         {% else %}
             <!--<p>Não há foto para este sócio.</p>-->
         {% endif %}
-        
+
         <div class="info">
 
-            <p >{{ dependentes.nome }} - {{ dependentes.tpsocio }} - {{ dependentes.filiacao }}  </p>
+            <p >{{ dependentes.nrcart }} - {{ dependentes.nome|slice:"0:22" }} - {{ dependentes.tpsocio }} - {{ dependentes.filiacao }}  </p>
             {% if dependentes.filiacao == "FILHO(a)" or dependentes.filiacao == "NETO(a)" or dependentes.filiacao == "BISNETO(a)" %}
                 <p >Validade: {{ dependentes.validade }}</p>
-            {% endif %}    
-            <p>{{ socio.nome }} </p>  
+            {% endif %}
+            <p>{{socio.nrcart}} - {{ socio.nome|slice:"0:22" }} </p>
         </div>
         <div class="qrcode">
             <!--<p id="nrcart">Número do Sócio: {{ dependentes.nrcart }}</p>-->
             <img id= "qrcode" src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Code">
-            
+
             <!--<button type="button" onclick="previewPrint()">Visualizar Impressão</button>-->
         </div>
         <div class="info2">
             <p><strong>DEPENDENTE:</strong></p>
             {% if dependentes.filiacao == "FILHO(a)" or dependentes.filiacao == "NETO(a)" %}
             <br>
-            {% endif %}    
-            <p><strong>TITULAR:</strong></p>    
+            {% endif %}
+            <p><strong>TITULAR:</strong></p>
 
-     
-            
+
+
         </div>
-   
+
 
     </div>
- 
+
 </body>
 </html>

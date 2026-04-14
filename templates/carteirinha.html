@@ -62,7 +62,7 @@
             font-size: 12px;
         }
 
-   
+
         .titulo {
             position: absolute;
             top: 60mm; /* Distância do topo */
@@ -75,7 +75,7 @@
             top: 65mm; /* Distância do topo */
             left: 3mm; /* Distância da esquerda */
             font-size: 13px;
-        }        
+        }
 
         .subtitulo {
             position: absolute;
@@ -104,13 +104,13 @@
         <div class="qrcode">
             <!--<p id="nrcart">Número do Sócio: {{ socio.nrcart }}</p>-->
             <img id= "qrcode" src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Code">
-            
+
             <!--<button type="button" onclick="previewPrint()">Visualizar Impressão</button>-->
         </div>
         <div class="info2">
             <!--<p><strong>TITULAR:</strong></p>-->
 
-            
+
         </div>
         <h3 class="titulo" id="titulo">Centro Civico Social Esportivo dos Servidores</h3><br>
         <h3 class="titulo2" id="titulo">Públicos Municipais de São Bernardo do Campo</h3><br>
@@ -118,17 +118,17 @@
             <p id="end">Rua Frei Angélico Manente nº 325 - Jardim Tupã </p>
             <p id="end">Riacho Grande-SBC-SP </p>
             <p id="fone">Telefone:(11) 99770-3338 (WhatsApp) </p>
-            <div class="linha-divisoria"></div>    
-         
+            <div class="linha-divisoria"></div>
+
         </div>
 
-        
+
         <div class="info">
-            <p style="text-transform: uppercase;"><strong>TITULAR: {{ socio.nome|slice:"0:30" }}  -  {{ socio.tpsocio }}   </strong></p> 
+            <p style="text-transform: uppercase;"><strong>TITULAR: {{socio.nrcart}} - {{ socio.nome|slice:"0:22" }}  -  {{ socio.tpsocio }}   </strong></p>
             <!--<p id="dtven">Vencimento: {{ socio.dtexame_fin }}</p>!-->
         </div>
- 
+
     </div>
- 
+
 </body>
 </html>
