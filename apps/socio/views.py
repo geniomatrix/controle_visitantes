@@ -23,6 +23,7 @@ from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from .serializers import SocioSerializer
 
+API_SOCIOS_URL = "https://reservasclubeccs.online/api/socios.php"
 
 class SocioViewSet(viewsets.ModelViewSet):
     """
@@ -506,11 +507,36 @@ def search_socio(request):
         results = Socio.objects.filter(nrcart__icontains=search_query)
     return render(request, 'search_results.html', {'form': form, 'results': results})  
  
+def enviar_socio_api(socio):
+    payload = {
+        "nome": socio.nome,
+        "nrcart": socio.nrcart,
+        "email": socio.email,
+        "ativo": "sim"
+    }
+
+    print("Payload que será enviado para a API:")
+    for key, value in payload.items():
+        print(f"{key}: {value}")
+
+    headers = {
+        "User-Agent": "PostmanRuntime/7.32.0"
+    }
+
+    response = requests.post(
+        API_SOCIOS_URL,
+        json=payload,
+        headers=headers,
+        timeout=10
+    )
+
+    return response
+
+
 def cadastrar_socio(request):
     if request.method == 'POST':
         form = SocioForm(request.POST, request.FILES)
         if form.is_valid():
-            # Preencher endereço pelo CEP
             cep = form.cleaned_data['cep']
             endereco = preencher_endereco_por_cep(cep)
             if endereco:
@@ -519,7 +545,6 @@ def cadastrar_socio(request):
                 form.instance.cidade = endereco['cidade']
                 form.instance.estado = endereco['estado']
 
-            # Gerar número da carteirinha
             if Socio.objects.exists():
                 ultimo_registro = Socio.objects.latest('id')
                 proximo_registro = ultimo_registro.id + 1
@@ -529,63 +554,149 @@ def cadastrar_socio(request):
             form.instance.nrcart = "S" + str(proximo_registro) + form.instance.tpsocio
             socio = form.save()
 
-            # Monta payload com os campos que a API espera
-            payload = {
-                "nome": socio.nome,
-                "nrcart": socio.nrcart,
-                "email": socio.email,
-                "ativo": "sim"
-            }
-
-            # Mostrar no console o conteúdo antes do post
-            print("Payload que será enviado para a API :")
-            for key, value in payload.items():
-                print(f"{key}: {value}")
-
             try:
-                # Envia JSON diretamente
-                headers = {
-                       "User-Agent": "PostmanRuntime/7.32.0"
-            }
-                response = requests.post(
-                    'https://reservasclubeccs.online/api/socios.php',
-                    json=payload,
-                    headers=headers,
-                    timeout=10
-                )
+                response = enviar_socio_api(socio)
+
                 if response.status_code == 200:
-                    messages.success(request, "Sócio registrado com sucesso e enviado para a API APP AW-Reservas!")
+                    messages.success(
+                        request,
+                        "Sócio registrado com sucesso e enviado para a API APP AW-Reservas!"
+                    )
                 else:
-                    messages.warning(request, f"Sócio registrado, mas houve um erro ao enviar para a API. Status: {response.status_code}, Resposta: {response.text}")
+                    messages.warning(
+                        request,
+                        f"Sócio registrado, mas houve erro ao enviar para a API. "
+                        f"Status: {response.status_code}, Resposta: {response.text}"
+                    )
             except requests.exceptions.RequestException as e:
-                messages.warning(request, f"Sócio registrado, mas não foi possível enviar para a API. Erro: {e}")
+                messages.warning(
+                    request,
+                    f"Sócio registrado, mas não foi possível enviar para a API. Erro: {e}"
+                )
 
             return redirect('lista_socios')
     else:
         form = SocioForm()
+
     return render(request, 'cadastrar_socio.html', {'form': form})
 
-def editar_socio(request, pk):
-    
-    socio = get_object_or_404(Socio, pk=pk)
-    if request.method == 'POST':
-        form = SocioForm(request.POST, request.FILES, instance=socio)  # Adicionando request.FILES
-        dois_meses = timedelta(days=60)  #validade do exame medico
-        if form.is_valid():
-            if socio.dtexame_ini:
-                if socio.dtexame_fin:
-                    diferenca_dias = socio.dtexame_ini - socio.dtexame_fin
-                    if diferenca_dias.days > 60:
-                        socio.dtexame_fin = socio.dtexame_ini + dois_meses
+
+def sincronizar_socio_api(socio):
+    payload = {
+        "nome": socio.nome,
+        "nrcart": socio.nrcart,
+        "cpf": socio.cpf if socio.cpf else "",
+        "email": socio.email if socio.email else "",
+        "ativo": "sim"
+    }
+
+    headers = {
+        "User-Agent": "PostmanRuntime/7.32.0",
+        "Content-Type": "application/json"
+    }
+
+    print("Payload enviado para API:")
+    for key, value in payload.items():
+        print(f"{key}: {value}")
+
+    # 1. Tenta atualizar
+    response_put = requests.put(
+        API_SOCIOS_URL,
+        json=payload,
+        headers=headers,
+        timeout=10
+    )
+
+    print("PUT status:", response_put.status_code)
+    print("PUT resposta:", response_put.text)
+
+    if response_put.status_code == 200:
+        try:
+            retorno_put = response_put.json()
+        except ValueError:
+            return False, f"Resposta inválida da API no PUT: {response_put.text}"
+
+        if retorno_put.get("status") == "OK":
+            return True, "Sócio atualizado com sucesso na API."
+
+        # Se não encontrou para atualizar, tenta inserir
+        mensagem_put = (retorno_put.get("mensagem") or "").lower()
+        if "nenhum registro" in mensagem_put or "não encontrado" in mensagem_put:
+            response_post = requests.post(
+                API_SOCIOS_URL,
+                json=payload,
+                headers=headers,
+                timeout=10
+            )
+
+            print("POST status:", response_post.status_code)
+            print("POST resposta:", response_post.text)
+
+            if response_post.status_code == 200:
+                try:
+                    retorno_post = response_post.json()
+                except ValueError:
+                    return False, f"Resposta inválida da API no POST: {response_post.text}"
+
+                if retorno_post.get("status") == "OK":
+                    return True, "Sócio não existia na API e foi incluído com sucesso."
                 else:
-                    socio.dtexame_fin = socio.dtexame_ini + dois_meses            
-            form.save()
-            messages.success(request, "Sócio alterado com sucesso!")
+                    return False, retorno_post.get("mensagem", "Erro ao incluir sócio na API.")
+
+            return False, f"Erro no POST da API. Status: {response_post.status_code}, Resposta: {response_post.text}"
+
+        return False, retorno_put.get("mensagem", "Erro ao atualizar sócio na API.")
+
+    return False, f"Erro no PUT da API. Status: {response_put.status_code}, Resposta: {response_put.text}"
+
+
+def editar_socio(request, pk):
+    socio = get_object_or_404(Socio, pk=pk)
+
+    if request.method == 'POST':
+        form = SocioForm(request.POST, request.FILES, instance=socio)
+
+        if form.is_valid():
+            socio_atualizado = form.save(commit=False)
+
+            dois_meses = timedelta(days=60)
+
+            if socio_atualizado.dtexame_ini:
+                if not socio_atualizado.dtexame_fin:
+                    socio_atualizado.dtexame_fin = socio_atualizado.dtexame_ini + dois_meses
+                else:
+                    diferenca_dias = socio_atualizado.dtexame_fin - socio_atualizado.dtexame_ini
+                    if diferenca_dias.days > 60 or diferenca_dias.days < 0:
+                        socio_atualizado.dtexame_fin = socio_atualizado.dtexame_ini + dois_meses
+
+            socio_atualizado.save()
+            form.save_m2m()
+
+            try:
+                ok, mensagem_api = sincronizar_socio_api(socio_atualizado)
+
+                if ok:
+                    messages.success(
+                        request,
+                        f"Sócio alterado com sucesso! {mensagem_api}"
+                    )
+                else:
+                    messages.warning(
+                        request,
+                        f"Sócio alterado com sucesso no sistema, mas houve problema na API: {mensagem_api}"
+                    )
+
+            except requests.exceptions.RequestException as e:
+                messages.warning(
+                    request,
+                    f"Sócio alterado com sucesso no sistema, mas não foi possível sincronizar com a API. Erro: {e}"
+                )
+
             return redirect('lista_socios_altera')
     else:
         form = SocioForm(instance=socio)
-    return render(request, 'editar_socio.html', {'form': form})
 
+    return render(request, 'editar_socio.html', {'form': form})
 def excluir_socio(request, pk):
     socio = get_object_or_404(Socio, pk=pk)
     socio.delete()
